@@ -1700,13 +1700,19 @@ function AutoVoteExtreme()
 end
 
 function AutoBattle()
-    repeat task.wait() until not game:GetService("ReplicatedStorage").Autoplay.Value
+    local success, result = pcall(function()
+        return game:GetService("ReplicatedStorage").Remotes.Input:InvokeServer("BuyAutoBattle")
+    end)
 
-    while not game:GetService("ReplicatedStorage").Autoplay.Value do
-        game:GetService("ReplicatedStorage").Remotes.Input:FireServer(unpack({
-        [1] = "BuyAutoBattle",
-        }))
-        task.wait(1)
+    if success and result then
+        repeat task.wait() until not game:GetService("ReplicatedStorage").Autoplay.Value
+
+        while not game:GetService("ReplicatedStorage").Autoplay.Value do
+            game:GetService("ReplicatedStorage").Remotes.Input:FireServer("BuyAutoBattle")
+            task.wait(1)
+        end
+    else
+        warn("Failed to invoke remote")
     end
 end
 
