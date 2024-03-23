@@ -1709,7 +1709,7 @@ function AutoBattle() -- W.I.P the setting for this is on line 2400 and the togg
         Settings.auto_battle = false
         Rayfield:Notify({
             Title = "You have no gems to run the script!",
-            Content = "Get More Gems 💀",
+            Content = "Get More Gems!",
             Duration = 6.5,
             Image = 4483362458,
             Actions = { -- Notification Buttons
