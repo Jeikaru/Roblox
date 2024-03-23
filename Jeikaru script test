@@ -203,10 +203,11 @@ local DefaultSettings = {
             ["Time"] = 13
         },
         ["Six Eyes Gojo"] = {
-            ["Mode"] = "Box",
-            ["Checks"] = {"stun"},
+            ["Mode"] = "Cycle",
+            ["Checks"] = {},
             ["Ability Type"] = "Normal",
             ["Time"] = 10,
+            ["Cycle Units"] = 7,
             ["Delay"] = 3
         },
         ["Merlin6"] = {
@@ -217,8 +218,10 @@ local DefaultSettings = {
         },
         ["Gojo7"] = {
             ["Time"] = 8.3,
-            ["Checks"] = {"stun"},
-            ["Mode"] = "Box",
+            ["Checks"] = {},
+            ["Cycle Units"] = 4,
+            ["Mode"] = "Cycle",
+            ["Delay"] = 0,
             ["Ability Type"] = "Normal"
         }
     },
@@ -1694,29 +1697,26 @@ function AutoVoteExtreme()
     until not GUI.HUD.ModeVoteFrame.Visible
 end
 
-function AutoBattle() -- W.I.P 
+function AutoBattle() -- W.I.P the setting for this is on line 2400 and the toggle is on line 2728
+    local function buyAutoBattle()
+        return game:GetService("ReplicatedStorage").Remotes.Input:InvokeServer("BuyAutoBattle")
+    end
+    
     local gemCount = get_gems()
-
-    if gemCount >= 1000 then
-        local success, result = pcall(function()
-            return game:GetService("ReplicatedStorage").Remotes.Input:InvokeServer("BuyAutoBattle")
-        end)
-
-        if success and result then
-            repeat
-                task.wait()
-            until not game:GetService("ReplicatedStorage").Autoplay.Value
-
+    
+    if gemCount >= 2700 then
+        if pcall(buyAutoBattle) then
             while not game:GetService("ReplicatedStorage").Autoplay.Value do
                 game:GetService("ReplicatedStorage").Remotes.Input:FireServer("BuyAutoBattle")
                 task.wait(1)
             end
         else
-            warn("Failed to invoke remote")
+            warn("Failed to run the remote")
         end
     else
         warn("Insufficient gems for AutoBattle")
     end
+    
 end
 
 function ChangeSpeed(speed)
@@ -1892,9 +1892,6 @@ local function AutoBuffHelper(Units, unit, checks, ability_type, ability_name)
             repeat task.wait() until not CheckAttackBuff(Units)
         elseif check == "range" then
             repeat task.wait() until not CheckRangeBuff(Units)
-        elseif check == "stun" then
-            repeat task.wait() until not CheckStun(Units)
-        
         end
     end
 
