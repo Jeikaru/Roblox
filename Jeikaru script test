@@ -2,6 +2,8 @@ if not game:IsLoaded() then game.Loaded:Wait() end
 if game.GameId ~= 1720936166 then return end
 local benchmark_time = os.clock()
 
+print("[KarmaPanda] Key Check: " .. os.clock() - benchmark_time)
+
 -- Helper Functions
 local function Split(s, delimiter)
     local result = {}
@@ -70,7 +72,7 @@ local function convert(n)
     end
 end
 
-local version = "3.05d"
+local version = "3.06a"
 local Settings
 local Macros = {}
 
@@ -218,7 +220,7 @@ local DefaultSettings = {
         },
         ["Gojo7"] = {
             ["Time"] = 8.3,
-            ["Checks"] = {"attack", "range"},
+            ["Checks"] = {},
             ["Cycle Units"] = 8,
             ["Mode"] = "Cycle",
             ["Delay"] = 0,
@@ -228,6 +230,7 @@ local DefaultSettings = {
     auto_vote_extreme = false,
     auto_2x = false,
     auto_3x = false,
+    auto_battle = false,
     macro_profile = "Default Profile",
     macro_record = false,
     macro_playback = false,
@@ -1696,6 +1699,17 @@ function AutoVoteExtreme()
     until not GUI.HUD.ModeVoteFrame.Visible
 end
 
+function AutoBattle()
+    repeat task.wait() until not game:GetService("ReplicatedStorage").Autoplay.Value
+
+    while not game:GetService("ReplicatedStorage").Autoplay.Value do
+        game:GetService("ReplicatedStorage").Remotes.Input:FireServer(unpack({
+        [1] = "BuyAutoBattle",
+        }))
+        task.wait(1)
+    end
+end
+
 function ChangeSpeed(speed)
     task.spawn(function()
         while get_game_speed() ~= tonumber(speed) do
@@ -2371,6 +2385,7 @@ if get_world() ~= -1 and get_world() ~= -2 then
         if Settings.auto_2x or Settings.auto_3x then
             task.spawn(AutoChangeSpeed)
         end
+        if Settings.auto_battle then task.spawn(AutoBattle) end
         if Settings.auto_replay then task.spawn(AutoReplay) end
         if Settings.auto_next_story then task.spawn(AutoNextStory) end
         if Settings.macro_record then task.spawn(StartMacroRecord) end
@@ -2696,6 +2711,16 @@ function InitializeUI()
                 Settings.auto_next_story = value
                 Save()
                 if not is_lobby() and value then AutoNextStory() end
+            end
+        })
+        local AutoBattleToggle = Main:CreateToggle({
+            Name = "Auto Battle",
+            CurrentValue = Settings.auto_battle,
+            SectionParent = GUIScriptsSection,
+            Callback = function(value)
+                Settings.auto_battle = value
+                Save()
+                if not is_lobby() and value then AutoBattle() end
             end
         })
     end
