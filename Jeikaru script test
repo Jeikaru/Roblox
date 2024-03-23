@@ -1892,9 +1892,9 @@ local function AutoBuffHelper(Units, unit, checks, ability_type, ability_name)
             repeat task.wait() until not CheckAttackBuff(Units)
         elseif check == "range" then
             repeat task.wait() until not CheckRangeBuff(Units)
-        end
-        if check == "stun" then
-            repeat task.wait() until not CheckStunBuff(Units)
+        elseif check == "stun" then
+            repeat task.wait() until not CheckStun(Units)
+        
         end
     end
 
