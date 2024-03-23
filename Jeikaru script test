@@ -1698,26 +1698,24 @@ function AutoVoteExtreme()
 end
 
 function AutoBattle() -- W.I.P the setting for this is on line 2400 and the toggle is on line 2728
-    local gemdontrun = 2700
-
     local function buyAutoBattle()
         return game:GetService("ReplicatedStorage").Remotes.Input:InvokeServer("BuyAutoBattle")
     end
     
     local gemCount = get_gems()
     
-    if gemCount >= gemThreshold then
-        if pcall(buyAutoBattle) then
-            while not game:GetService("ReplicatedStorage").Autoplay.Value do
-                game:GetService("ReplicatedStorage").Remotes.Input:FireServer("BuyAutoBattle")
+    if gemCount >= 2700 then
+        while not game:GetService("ReplicatedStorage").Autoplay.Value do
+            if pcall(buyAutoBattle) then
                 task.wait(1)
+            else
+                warn("Failed to run the remote")
+                break  -- Exit the loop if remote invocation fails
             end
-        else
-            warn("Failed to run the remote")
         end
     else
         warn("Insufficient gems for AutoBattle")
-    end    
+    end   
 end
 
 function ChangeSpeed(speed)
