@@ -211,7 +211,7 @@ local DefaultSettings = {
             ["Delay"] = 3
         },
         ["Merlin6"] = {
-            ["Time"] = 15,
+            ["Time"] = 13,
             ["Checks"] = {"attack", "range"},
             ["Mode"] = "Box",
             ["Ability Type"] = "Normal"
@@ -1698,13 +1698,15 @@ function AutoVoteExtreme()
 end
 
 function AutoBattle() -- W.I.P the setting for this is on line 2400 and the toggle is on line 2728
+    local gemdontrun = 2700
+
     local function buyAutoBattle()
         return game:GetService("ReplicatedStorage").Remotes.Input:InvokeServer("BuyAutoBattle")
     end
     
     local gemCount = get_gems()
     
-    if gemCount >= 2700 then
+    if gemCount >= gemThreshold then
         if pcall(buyAutoBattle) then
             while not game:GetService("ReplicatedStorage").Autoplay.Value do
                 game:GetService("ReplicatedStorage").Remotes.Input:FireServer("BuyAutoBattle")
@@ -1715,8 +1717,7 @@ function AutoBattle() -- W.I.P the setting for this is on line 2400 and the togg
         end
     else
         warn("Insufficient gems for AutoBattle")
-    end
-    
+    end    
 end
 
 function ChangeSpeed(speed)
