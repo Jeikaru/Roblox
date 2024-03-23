@@ -1699,7 +1699,9 @@ end
 
 function AutoBattle() -- W.I.P the setting for this is on line 2400 and the toggle is on line 2728
     local function buyAutoBattle()
-        return game:GetService("ReplicatedStorage").Remotes.Input:InvokeServer("BuyAutoBattle")
+        return         game:GetService("ReplicatedStorage").Remotes.Input:FireServer(unpack({
+            [1] = "BuyAutoBattle",
+            }))
     end
     
     local gemCount = get_gems()
@@ -1727,7 +1729,6 @@ function AutoBattle() -- W.I.P the setting for this is on line 2400 and the togg
     else
         warn("Insufficient gems for AutoBattle")
     end
-     
 end
 
 function ChangeSpeed(speed)
