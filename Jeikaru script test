@@ -1703,11 +1703,24 @@ function AutoBattle() -- W.I.P the setting for this is on line 2400 and the togg
     end
     
     local gemCount = get_gems()
-    local gemThreshold = 2700
+    local gemnono = 270000000000000000000000000000000000
     
-    if gemCount < gemThreshold then
+    if gemCount < gemnono then
         Settings.auto_battle = false
-        warn("AutoBattle disabled due to insufficient gems")
+        Rayfield:Notify({
+            Title = "You have no gems to run the script!",
+            Content = "Notification Content",
+            Duration = 6.5,
+            Image = 4483362458,
+            Actions = { -- Notification Buttons
+                Ignore = {
+                    Name = "Okay!",
+                    Callback = function()
+                        print("Get More Gems 💀")
+                    end
+                },
+            },
+        })
     else
         if pcall(buyAutoBattle) then
             task.wait()
