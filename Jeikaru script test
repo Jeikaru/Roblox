@@ -1,3 +1,4 @@
+if not game:IsLoaded() then game.Loaded:Wait() end
 if game.GameId ~= 1720936166 then return end
 local benchmark_time = os.clock()
 
@@ -1696,7 +1697,7 @@ function AutoVoteExtreme()
     until not GUI.HUD.ModeVoteFrame.Visible
 end
 
-function AutoBattle()
+function AutoBattle() -- W.I.P the setting for this is on line 2400 and the toggle is on line 2728
     local function buyAutoBattle()
         return game:GetService("ReplicatedStorage").Remotes.Input:FireServer("BuyAutoBattle")
     end
@@ -1713,7 +1714,9 @@ function AutoBattle()
             Image = 4483362458,
             Actions = { -- Notification Buttons
                 Ignore = {
-                    Name = "👍",
+                    Name = "Okay!",
+                    Callback = function()
+                        print("🤫🧏‍♀️")
                     end
                 },
             },
@@ -1725,6 +1728,7 @@ function AutoBattle()
             warn("Failed to run the remote")
         end
     end
+      
 end
 
 function ChangeSpeed(speed)
