@@ -1699,36 +1699,23 @@ end
 
 function AutoBattle() -- W.I.P the setting for this is on line 2400 and the toggle is on line 2728
     local function buyAutoBattle()
-        return         game:GetService("ReplicatedStorage").Remotes.Input:FireServer(unpack({
-            [1] = "BuyAutoBattle",
-            }))
+        return game:GetService("ReplicatedStorage").Remotes.Input:FireServer("BuyAutoBattle")
     end
     
     local gemCount = get_gems()
-    local gemdontbuy = 2700
+    local gemThreshold = 2700
     
-    if gemCount >= gemdontbuy then
+    if gemCount < gemThreshold then
+        Settings.auto_battle = false
+        warn("AutoBattle disabled due to insufficient gems")
+    else
         if pcall(buyAutoBattle) then
-            while true do
-                if not game:GetService("ReplicatedStorage").Autoplay.Value then
-                    if pcall(buyAutoBattle) then
-                        while not game:GetService("ReplicatedStorage").Autoplay.Value do
-                            task.wait(1)
-                        end
-                    else
-                        warn("Failed to run the remote")
-                        break 
-                    end
-                else
-                    break
-                end
-            end
+            task.wait()
         else
             warn("Failed to run the remote")
         end
-    else
-        warn("Insufficient gems for AutoBattle")
     end
+      
 end
 
 function ChangeSpeed(speed)
