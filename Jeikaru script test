@@ -1697,26 +1697,24 @@ function AutoVoteExtreme()
     until not GUI.HUD.ModeVoteFrame.Visible
 end
 
-function AutoBattle() -- W.I.P the setting for this is on line 2400 and the toggle is on line 2728
+function AutoBattle()
     local function buyAutoBattle()
         return game:GetService("ReplicatedStorage").Remotes.Input:FireServer("BuyAutoBattle")
     end
     
     local gemCount = get_gems()
-    local gemnono = 270000000000000000000000000000000000
+    local gemnono = 2700
     
     if gemCount < gemnono then
         Settings.auto_battle = false
         Rayfield:Notify({
             Title = "You have no gems to run the script!",
-            Content = "Notification Content",
+            Content = "Get More Gems 💀",
             Duration = 6.5,
             Image = 4483362458,
             Actions = { -- Notification Buttons
                 Ignore = {
-                    Name = "Okay!",
-                    Callback = function()
-                        print("Get More Gems 💀")
+                    Name = "👍",
                     end
                 },
             },
@@ -1728,7 +1726,6 @@ function AutoBattle() -- W.I.P the setting for this is on line 2400 and the togg
             warn("Failed to run the remote")
         end
     end
-      
 end
 
 function ChangeSpeed(speed)
