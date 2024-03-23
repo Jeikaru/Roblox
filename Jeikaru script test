@@ -203,25 +203,22 @@ local DefaultSettings = {
             ["Time"] = 13
         },
         ["Six Eyes Gojo"] = {
-            ["Mode"] = "Cycle",
-            ["Checks"] = {},
+            ["Mode"] = "Box",
+            ["Checks"] = {"stun"},
             ["Ability Type"] = "Normal",
             ["Time"] = 10,
-            ["Cycle Units"] = 7,
             ["Delay"] = 3
         },
         ["Merlin6"] = {
             ["Time"] = 15,
             ["Checks"] = {"attack", "range"},
             ["Mode"] = "Box",
-            ["Delay"] = 0,
             ["Ability Type"] = "Normal"
         },
         ["Gojo7"] = {
             ["Time"] = 8.3,
-            ["Checks"] = {},
+            ["Checks"] = {"stun"},
             ["Mode"] = "Box",
-            ["Delay"] = 0,
             ["Ability Type"] = "Normal"
         }
     },
@@ -1895,6 +1892,9 @@ local function AutoBuffHelper(Units, unit, checks, ability_type, ability_name)
             repeat task.wait() until not CheckAttackBuff(Units)
         elseif check == "range" then
             repeat task.wait() until not CheckRangeBuff(Units)
+        end
+        if check == "stun" then
+            repeat task.wait() until not CheckStunBuff(Units)
         end
     end
 
