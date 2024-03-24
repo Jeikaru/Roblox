@@ -229,6 +229,7 @@ local DefaultSettings = {
     auto_2x = false,
     auto_3x = false,
     auto_battle = false,
+    auto_battle_gems = 1,
     macro_profile = "Default Profile",
     macro_record = false,
     macro_playback = false,
@@ -1704,7 +1705,7 @@ function AutoBattle() -- W.I.P the setting for this is on line 2400 and the togg
     
     local gemCount = get_gems()
 
-    if gemCount < 2700 then
+    if gemCount < Settings.auto_battle_gems then
         Settings.auto_battle = false
         Rayfield:Notify({
             Title = "You have no gems to run the script!",
