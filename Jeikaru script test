@@ -3694,10 +3694,11 @@ function InitializeUI()
             AdvancedSettingsTab:CreateInput({
                 Name = "AutoBattleGems",
                 Info = "Put your gems required to stop the autobattle",
-                PlaceholderText = Settings.auto_battle_gems,
+                PlaceholderText = "15" ,
+                NumbersOnly = true,
                 RemoveTextAfterFocusLost = false,
-                Callback = function(value)
-                    Settings.auto_battle_gems = value
+                Callback = function(text)
+                    auto_battle_gems = tonumber(text)
                     Save()
                 end,
                 SectionParent = AutomationSection
