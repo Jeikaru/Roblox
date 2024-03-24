@@ -3684,27 +3684,6 @@ function InitializeUI()
             })
         end
 
-        local function Automation()
-            local AutomationSection = AdvancedSettingsTab:CreateSection(
-                                            "Automation",)
-            AdvancedSettingsTab:CreateParagraph({
-                Title = "Automation",
-                Content = "The automation is used to automatically upgrades your units, sell your units and turns on autobattle. whereas you can manually change the values you want in here as you like."
-                SectionParent = AutomationSection
-            })
-            AdvancedSettingsTab:CreateInput({
-                Name = "AutoBattleGems",
-                Info = "Put your gems required to stop the autobattle",
-                PlaceholderText = Gems: ,
-                RemoveTextAfterFocusLost = false,
-                Callback = function(text)
-                    Settings.auto_battle_gems = value
-                    Save()
-                end,
-                SectionParent = AutomationSection
-            })
-        end
-
         local function ActionQueueSettings()
             local ActionQueueSection = AdvancedSettingsTab:CreateSection(
                                            "Action Queue Settings")
