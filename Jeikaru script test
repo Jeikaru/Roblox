@@ -3702,7 +3702,8 @@ function InitializeUI()
                     Save()
                 end,
                 SectionParent = AutomationSection
-            })
+                })
+            end
         end
 
         local function ActionQueueSettings()
