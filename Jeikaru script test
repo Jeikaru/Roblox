@@ -3684,8 +3684,7 @@ function InitializeUI()
         end
 
         local function Automation()
-            local AutomationSection = AdvancedSettingsTab:CreateSection(
-                                            "Automation")
+            local AutomationSection = AdvancedSettingsTab:CreateSection("Automation")
             AdvancedSettingsTab:CreateParagraph({
                 Title = "Automation",
                 Content = "The automation is used to automatically upgrades your units, sell your units and turns on autobattle. whereas you can manually change the values you want in here as you like."
@@ -3700,7 +3699,6 @@ function InitializeUI()
                 RemoveTextAfterFocusLost = false,
                 Callback = function(text)
                     auto_battle_gems = tonumber(text)
-                    Save()
                 end,
                 SectionParent = AutomationSection
             })
