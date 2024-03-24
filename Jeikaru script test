@@ -1703,8 +1703,9 @@ function AutoBattle() -- W.I.P the setting for this is on line 2400 and the togg
     end
     
     local gemCount = get_gems()
-
-    if gemCount < 2700 then
+    local gemnono = 2700
+    
+    if gemCount < gemnono then
         Settings.auto_battle = false
         Rayfield:Notify({
             Title = "You have no gems to run the script!",
@@ -1715,7 +1716,7 @@ function AutoBattle() -- W.I.P the setting for this is on line 2400 and the togg
                 Ignore = {
                     Name = "Okay!",
                     Callback = function()
-                        print("done!")
+                        print("🤫🧏‍♀️")
                     end
                 },
             },
@@ -1727,6 +1728,7 @@ function AutoBattle() -- W.I.P the setting for this is on line 2400 and the togg
             warn("Failed to run the remote")
         end
     end
+      
 end
 
 function ChangeSpeed(speed)
@@ -3681,7 +3683,6 @@ function InitializeUI()
                 SectionParent = AutoUnitBuffingSection
             })
         end
-
         local function ActionQueueSettings()
             local ActionQueueSection = AdvancedSettingsTab:CreateSection(
                                            "Action Queue Settings")
