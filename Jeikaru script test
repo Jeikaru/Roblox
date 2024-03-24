@@ -1704,7 +1704,7 @@ function AutoBattle() -- W.I.P the setting for this is on line 2400 and the togg
     end
     
     local gemCount = get_gems()
-    local gemnono = auto_battle_gems
+    local gemnono = Settings.auto_battle_gems
     
     if gemCount < gemnono then
         Settings.auto_battle = false
