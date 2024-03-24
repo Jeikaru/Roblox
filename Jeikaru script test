@@ -279,7 +279,6 @@ local DefaultSettings = {
     disable_3d_rendering = false,
     hide_player_name = false,
     auto_execute = false
-    auto_battle_gems = 0,
 }
 
 if not pcall(function() readfile(SettingsFile) end) then
@@ -1704,9 +1703,8 @@ function AutoBattle() -- W.I.P the setting for this is on line 2400 and the togg
     end
     
     local gemCount = get_gems()
-    local gemnono = Settings.auto_battle_gems
 
-    if gemCount < gemnono then
+    if gemCount < 2700 then
         Settings.auto_battle = false
         Rayfield:Notify({
             Title = "You have no gems to run the script!",
