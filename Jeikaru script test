@@ -3683,6 +3683,7 @@ function InitializeUI()
                 SectionParent = AutoUnitBuffingSection
             })
         end
+
         local function Automation()
             local AutomationSection = AdvancedSettingsTab:CreateSection(
                                             "Automation",)
@@ -3697,7 +3698,7 @@ function InitializeUI()
                 PlaceholderText = Settings.auto_battle_gems,
                 RemoveTextAfterFocusLost = false,
                 Callback = function(text)
-                    Settings.auto_battle_gems = tonumber(text)
+                    Settings.auto_battle_gems = value
                     Save()
                 end,
                 SectionParent = AutomationSection
