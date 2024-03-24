@@ -1705,7 +1705,7 @@ function AutoBattle() -- W.I.P the setting for this is on line 2400 and the togg
     
     local gemCount = get_gems()
     local gemnono = Settings.auto_battle_gems
-    
+
     if gemCount < gemnono then
         Settings.auto_battle = false
         Rayfield:Notify({
@@ -1717,7 +1717,7 @@ function AutoBattle() -- W.I.P the setting for this is on line 2400 and the togg
                 Ignore = {
                     Name = "Okay!",
                     Callback = function()
-                        print("🤫🧏‍♀️")
+                        print("done!")
                     end
                 },
             },
