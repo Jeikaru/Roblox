@@ -3696,7 +3696,7 @@ function InitializeUI()
                 Info = "Put your gems required to stop the autobattle",
                 PlaceholderText = Settings.auto_battle_gems,
                 RemoveTextAfterFocusLost = false,
-                Callback = function(text)
+                Callback = function(value)
                     Settings.auto_battle_gems = value
                     Save()
                 end,
