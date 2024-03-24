@@ -3685,7 +3685,7 @@ function InitializeUI()
 
         local function Automation()
             local AutomationSection = AdvancedSettingsTab:CreateSection(
-                                            "Automation",)
+                                            "Automation")
             AdvancedSettingsTab:CreateParagraph({
                 Title = "Automation",
                 Content = "The automation is used to automatically upgrades your units, sell your units and turns on autobattle. whereas you can manually change the values you want in here as you like."
