@@ -3682,27 +3682,6 @@ function InitializeUI()
             })
         end
 
-        local function AutomationSettings()
-            local AutomationSection = AdvancedSettingsTab:CreateSection("Automation")
-            AdvancedSettingsTab:CreateParagraph({
-                Title = "Automation",
-                Content = "The automation is used to automatically upgrades your units, sell your units and turns on autobattle. where you can manually change the values you want"
-                SectionParent = AutomationSection
-            })
-            AdvancedSettingsTab:CreateSlider({
-                Name = "Auto Battle Gems",
-                Info = "Stops The Auto-Battle When its below the gems",
-                Range = {1, 1000000},
-                Increment = 1,
-                CurrentValue = Settings.battle_gems,
-                Callback = function(value)
-                    Settings.battle_gems = value
-                    Save()
-                end,
-                SectionParent = AutomationSection
-            })
-        end
-
         local function ActionQueueSettings()
             local ActionQueueSection = AdvancedSettingsTab:CreateSection(
                                            "Action Queue Settings")
@@ -3767,7 +3746,6 @@ function InitializeUI()
 
         AutoUnitBuffingSettings()
         ActionQueueSettings()
-        AutomationSettings()
     end
 
     local function LobbySettings()
