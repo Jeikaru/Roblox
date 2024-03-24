@@ -3695,15 +3695,14 @@ function InitializeUI()
             AdvancedSettingsTab:CreateInput({
                 Name = "AutoBattleGems",
                 Info = "Put your gems required to stop the autobattle",
-                PlaceholderText = Settings.auto_battle_gems,
+                PlaceholderText = Gems: ,
                 RemoveTextAfterFocusLost = false,
                 Callback = function(text)
                     Settings.auto_battle_gems = value
                     Save()
                 end,
                 SectionParent = AutomationSection
-                })
-            end
+            })
         end
 
         local function ActionQueueSettings()
