@@ -284,7 +284,7 @@ local DefaultSettings = {
     automatic_upgrade_money = 100,
     automatic_upgrade_speed = 0.4,
     automatic_upgrade_delay = 1,
-    automatic_upgrade = false
+    automatic_upgrade = false,
 }
 
 if not pcall(function() readfile(SettingsFile) end) then
