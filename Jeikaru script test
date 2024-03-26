@@ -230,6 +230,11 @@ local DefaultSettings = {
     auto_3x = false,
     auto_battle = false,
     battle_gems = 2700,
+    automatic_upgrade_wave = 1,
+    automatic_upgrade_money = 100,
+    automatic_upgrade_speed = 0.4,
+    automatic_upgrade_delay = 1,
+    automatic_upgrade = false,
     macro_profile = "Default Profile",
     macro_record = false,
     macro_playback = false,
@@ -279,12 +284,7 @@ local DefaultSettings = {
     anti_afk = true,
     disable_3d_rendering = false,
     hide_player_name = false,
-    auto_execute = false,
-    automatic_upgrade_wave = 1,
-    automatic_upgrade_money = 100,
-    automatic_upgrade_speed = 0.4,
-    automatic_upgrade_delay = 1,
-    automatic_upgrade = false
+    auto_execute = false
 }
 
 if not pcall(function() readfile(SettingsFile) end) then
@@ -2044,14 +2044,14 @@ function AutomaticUpgrade() -- W.I.P (jeikaru will do it)
         v:unit_max_upgrade_level ~= nil
 
     if v and v:waitForChild("Owner") == game.Players.LocalPlayer and
-        v:unit_upgrade_level.Value ~-
-        v:unit_max_upgrade_level.Value and
-        wave.Value >= JSON.automatic_upgrade_wave and
+        v:unit_upgrade_level ~-
+        v:unit_max_upgrade_level and
+        wave >= JSON.automatic_upgrade_wave and
         get_money >= JSON.automatic_upgrade_money then
         if not JSON.automatic_upgrade then break end
 
         task.spawn(function()
-            local original_level = unit_upgrade_level.Value
+            local original_level = unit_upgrade_level
             local time_since_last_upgrade = os.time()
 
             local args = {[1] = "Upgrade", [2] = v}
@@ -2061,11 +2061,11 @@ function AutomaticUpgrade() -- W.I.P (jeikaru will do it)
             repeat
                 remote_server:InvokeServer("Upgrade", v)
                 task.wait(0.24 + JSON.automatic_upgrade_speed)
-            until getmoney.Value <
-                cost or v:unit_upgrade_level.Value ==
-                original_level + 1 or v:unit_upgrade_level.Value ==
-                v:unit_max_upgrade_level.Value or
-                get_money.Value < 
+            until getmoney <
+                cost or v:unit_upgrade_level ==
+                original_level + 1 or v:unit_upgrade_level ==
+                v:unit_max_upgrade_level or
+                get_money < 
                 JSON.automatic_upgrade_money or not JSON.automatic_upgrade or
                 os.time() - time_since_last_upgrade >
                 JSON.automatic_upgrade_delay
