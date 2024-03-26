@@ -1767,9 +1767,9 @@ function AutomaticUpgrade() -- W.I.P (jeikaru will do it)
                 remote_server:InvokeServer("Upgrade", v)
                 task.wait(0.24 + JSON.automatic_upgrade_speed)
             until getmoney <
-                cost or v:unit_upgrade_level ==
-                original_level + 1 or v:unit_upgrade_level ==
-                v:unit_max_upgrade_level or
+                cost or unit_upgrade_level ==
+                original_level + 1 or unit_upgrade_level ==
+                unit_max_upgrade_level or
                 get_money < 
                 JSON.automatic_upgrade_money or not JSON.automatic_upgrade or
                 os.time() - time_since_last_upgrade >
@@ -2450,7 +2450,7 @@ if get_world() ~= -1 and get_world() ~= -2 then
         task.spawn(StartActionQueue)
         if Settings.auto_buff then task.spawn(AutoBuff) end
         if Settings.auto_vote_extreme then task.spawn(AutoVoteExtreme) end
-        if JSON.automatic_upgrade then task.spawn(AutomaticUpgrade) end
+        if JSON.automatic_upgrade then task.spawn(AutoUpgrade) end
         if Settings.auto_2x or Settings.auto_3x then
             task.spawn(AutoChangeSpeed)
         end
