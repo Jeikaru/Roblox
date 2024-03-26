@@ -2029,50 +2029,6 @@ function AutoBuff()
     end
 end
 
-function AutomaticUpgrade() -- W.I.P (jeikaru will do it)
-    local wave = game:GetService("ReplicatedStorage")
-    :FindFirstChild("WaveValue")
-    local unit_upgrade_level = unit:FindFirstChild("UpgradeTag")
-    local unit_max_upgrade_level = get_max_upgrade_level(unit.Name)
-
-    if wave ~= nil and
-    get_money ~= nil
-
-    for _, v in pairs(game:GetService("Workspace").Unit:GetChildren()) do
-        repeat task.wait() until v and v:WaitForChild("Owner") ~= nil and
-        v:unit_upgrade_level ~= nil and
-        v:unit_max_upgrade_level ~= nil
-
-    if v and v:waitForChild("Owner") == game.Players.LocalPlayer and
-        v:unit_upgrade_level ~-
-        v:unit_max_upgrade_level and
-        wave >= JSON.automatic_upgrade_wave and
-        get_money >= JSON.automatic_upgrade_money then
-        if not JSON.automatic_upgrade then break end
-
-        task.spawn(function()
-            local original_level = unit_upgrade_level
-            local time_since_last_upgrade = os.time()
-
-            local args = {[1] = "Upgrade", [2] = v}
-
-            local cost = get_upgrade_cost
-
-            repeat
-                remote_server:InvokeServer("Upgrade", v)
-                task.wait(0.24 + JSON.automatic_upgrade_speed)
-            until getmoney <
-                cost or v:unit_upgrade_level ==
-                original_level + 1 or v:unit_upgrade_level ==
-                v:unit_max_upgrade_level or
-                get_money < 
-                JSON.automatic_upgrade_money or not JSON.automatic_upgrade or
-                os.time() - time_since_last_upgrade >
-                JSON.automatic_upgrade_delay
-        end)
-    end
-end
-
 local isEvolvingEXP = false
 
 function AutoEvolveEXP()
