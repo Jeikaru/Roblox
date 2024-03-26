@@ -280,6 +280,11 @@ local DefaultSettings = {
     disable_3d_rendering = false,
     hide_player_name = false,
     auto_execute = false
+    automatic_upgrade_wave = 1,
+    automatic_upgrade_money = 100,
+    automatic_upgrade_speed = 0.4,
+    automatic_upgrade_delay = 1,
+    automatic_upgrade = false
 }
 
 if not pcall(function() readfile(SettingsFile) end) then
@@ -2024,6 +2029,50 @@ function AutoBuff()
     end
 end
 
+function AutomaticUpgrade() -- W.I.P (jeikaru will do it)
+    local wave = game:GetService("ReplicatedStorage")
+    :FindFirstChild("WaveValue")
+    local unit_upgrade_level = unit:FindFirstChild("UpgradeTag")
+    local unit_max_upgrade_level = get_max_upgrade_level(unit.Name)
+
+    if wave ~= nil and
+    get_money ~= nil
+
+    for _, v in pairs(game:GetService("Workspace").Unit:GetChildren()) do
+        repeat task.wait() until v and v:WaitForChild("Owner") ~= nil and
+        v:unit_upgrade_level ~= nil and
+        v:unit_max_upgrade_level ~= nil
+
+    if v and v:waitForChild("Owner") == game.Players.LocalPlayer and
+        v:unit_upgrade_level.Value ~-
+        v:unit_max_upgrade_level.Value and
+        wave.Value >= JSON.automatic_upgrade_wave and
+        get_money >= JSON.automatic_upgrade_money then
+        if not JSON.automatic_upgrade then break end
+
+        task.spawn(function()
+            local original_level = unit_upgrade_level.Value
+            local time_since_last_upgrade = os.time()
+
+            local args = {[1] = "Upgrade", [2] = v}
+
+            local cost = get_upgrade_cost
+
+            repeat
+                remote_server:InvokeServer("Upgrade", v)
+                task.wait(0.24 + JSON.automatic_upgrade_speed)
+            until getmoney.Value <
+                cost or v:unit_upgrade_level.Value ==
+                original_level + 1 or v:unit_upgrade_level.Value ==
+                v:unit_max_upgrade_level.Value or
+                get_money.Value < 
+                JSON.automatic_upgrade_money or not JSON.automatic_upgrade or
+                os.time() - time_since_last_upgrade >
+                JSON.automatic_upgrade_delay
+        end)
+    end
+end
+
 local isEvolvingEXP = false
 
 function AutoEvolveEXP()
@@ -2669,6 +2718,16 @@ function InitializeUI()
                 Settings.auto_buff = value
                 Save()
                 if not is_lobby() and value then AutoBuff() end
+            end,
+            SectionParent = GameplayScriptsSection
+        })
+        local AutoBuffToggle = Main:CreateToggle({
+            Name = "Auto Upgrade",
+            CurrentValue = Settings.automatic_upgrade,
+            Callback = function(value)
+                Settings.automatic_upgrade = value
+                Save()
+                if not is_lobby() and value then AutomaticUpgrade() end
             end,
             SectionParent = GameplayScriptsSection
         })
