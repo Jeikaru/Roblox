@@ -2450,6 +2450,7 @@ if get_world() ~= -1 and get_world() ~= -2 then
         task.spawn(StartActionQueue)
         if Settings.auto_buff then task.spawn(AutoBuff) end
         if Settings.auto_vote_extreme then task.spawn(AutoVoteExtreme) end
+        if JSON.automatic_upgrade then task.spawn(AutomaticUpgrade) end
         if Settings.auto_2x or Settings.auto_3x then
             task.spawn(AutoChangeSpeed)
         end
