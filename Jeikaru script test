@@ -2,18 +2,6 @@ if not game:IsLoaded() then game.Loaded:Wait() end
 if game.GameId ~= 1720936166 then return end
 local benchmark_time = os.clock()
 
--- Whitelist System
-local whitelisted = false
-local base_url = "https://script.karmapanda.dev/"
-local library = loadstring(game:HttpGet(base_url .. 'library'))()
-
-if isfile("KarmaPanda\\key.panda") then
-    whitelisted = library.Authenticate(readfile("KarmaPanda\\key.panda"))
-else
-    loadstring(game:HttpGet(base_url))()
-    return
-end
-
 print("[KarmaPanda] Key Check: " .. os.clock() - benchmark_time)
 
 -- Helper Functions
@@ -296,7 +284,7 @@ local DefaultSettings = {
     automatic_upgrade_money = 100,
     automatic_upgrade_speed = 0.4,
     automatic_upgrade_delay = 1,
-    automatic_upgrade = false,
+    automatic_upgrade = false
 }
 
 if not pcall(function() readfile(SettingsFile) end) then
