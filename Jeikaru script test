@@ -102,10 +102,10 @@ local Rayfield = loadstring(rayfield_data)()
 
 local Window = Rayfield:CreateWindow({
     Name = string.format(
-        "KarmaPanda's All Star Tower Defense Script (Version )", version),
+        "KarmaPanda's All Star Tower Defense Script (Version %s)", version),
     LoadingTitle = "All Star Tower Defense Script",
     LoadingSubtitle = "by KarmaPanda",
-    LoadingVersion = string.format("Version ", version),
+    LoadingVersion = string.format("Version %s", version),
     ConfigurationSaving = {Enabled = false},
     Discord = {Enabled = true, Invite = "BrnQQGKbvE", RememberJoins = true},
     KeySystem = false
