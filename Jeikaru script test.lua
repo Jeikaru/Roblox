@@ -3,7 +3,7 @@ if game.GameId ~= 1720936166 then return end
 local benchmark_time = os.clock()
 
 -- Whitelist System
-local whitelisted = true
+local whitelisted = false
 local base_url = "https://script.karmapanda.dev/"
 local library = loadstring(game:HttpGet(base_url .. 'library'))()
 
