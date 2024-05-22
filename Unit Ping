@@ -1,0 +1,35 @@
+local function ping(unitName)
+    local currentTime = os.time()
+    local expireTime = currentTime + 3600 -- 3600 is 1 hour
+    local discordTimestamp2 = string.format("<t:%d:R>", expireTime)
+
+    if unitName == "Speedwagon" then
+        SendWebhook({
+            {
+                ["name"] = "Speedwagon is on banner",
+                ["value"] = "<@&1242612453062348962> this unit will be gone in " .. discordTimestamp2
+            }
+        })
+    elseif unitName == "Hoshino" then
+        SendWebhook({
+            {
+                ["name"] = "Ai Hoshino (Idol) is on banner",
+                ["value"] = "<@&1242612571606093855> this unit will be gone in " .. discordTimestamp2
+            }
+        })
+    elseif unitName == "W3Octo" then
+        SendWebhook({
+            {
+                ["name"] = "W3Octo is on banner",
+                ["value"] = "<@&1242612677453549669> this unit will be gone in " .. discordTimestamp2
+            }
+        })
+    elseif unitName == "Starpass6" or unitName == "Starpass7" then
+        SendWebhook({
+            {
+                ["name"] = "Starpass is on banner",
+                ["value"] = "<@&1242987320022405141> this unit will be gone in " .. discordTimestamp2
+            }
+        })
+    end
+end
