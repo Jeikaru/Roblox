@@ -1,4 +1,4 @@
-local bannerlist = {
+return {
     "Speedwagon",
     "Hoshino",
     "W3Octo",
