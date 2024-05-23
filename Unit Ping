@@ -33,3 +33,5 @@ local function ping(unitName)
         })
     end
 end
+
+return ping
