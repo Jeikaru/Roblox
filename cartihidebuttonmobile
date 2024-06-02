@@ -1,62 +1,77 @@
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = GUI
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+local function CreateHideButtonGUI()
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Parent = GUI
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-local Frame = Instance.new("Frame")
-Frame.Parent = ScreenGui
-Frame.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
-Frame.Position = UDim2.new(0.033, 0, 0.305, 0)
-Frame.Size = UDim2.new(0, 50, 0, 50)
-Frame.Active = true
-Frame.BorderSizePixel = 4
-Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    local Frame = Instance.new("Frame")
+    Frame.Parent = ScreenGui
+    Frame.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
+    Frame.Position = UDim2.new(0.033, 0, 0.305, 0)
+    Frame.Size = UDim2.new(0, 50, 0, 50)
+    Frame.Active = true
+    Frame.BorderSizePixel = 4
+    Frame.BorderColor3 = Color3.fromRGB(255, 0, 0)
 
-local ImageLabel = Instance.new("ImageLabel")
-ImageLabel.Parent = Frame
-ImageLabel.BackgroundTransparency = 1
-ImageLabel.Size = UDim2.new(1, 0, 1, 0)
-ImageLabel.Image = "http://www.roblox.com/asset/?id=16797086815"
-ImageLabel.ImageTransparency = 0.1
+    local ImageLabel = Instance.new("ImageLabel")
+    ImageLabel.Parent = Frame
+    ImageLabel.BackgroundTransparency = 1
+    ImageLabel.Size = UDim2.new(1, 0, 1, 0)
+    ImageLabel.Image = "http://www.roblox.com/asset/?id=16797086815"
+    ImageLabel.ImageTransparency = 0.1
 
-local TextButton = Instance.new("TextButton")
-TextButton.Parent = ImageLabel
-TextButton.Size = UDim2.new(1, 0, 1, 0)
-TextButton.BackgroundTransparency = 1
-TextButton.Text = ""
-TextButton.ZIndex = 2
-TextButton.Active = false
+    local TextButton = Instance.new("TextButton")
+    TextButton.Parent = ImageLabel
+    TextButton.Size = UDim2.new(1, 0, 1, 0)
+    TextButton.BackgroundTransparency = 1
+    TextButton.Text = ""
+    TextButton.ZIndex = 2
+    TextButton.Active = false
 
-local isDragging = false
-local dragStartPos = nil
-local frameStartPos = nil
+    local function RainbowBorder()
+        local hue = 0
+        local rate = 0.005
 
-Frame.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.Touch and
-		input.UserInputState == Enum.UserInputState.Begin then
-		isDragging = true
-		dragStartPos = input.Position
-		frameStartPos = Frame.Position
-	end
-end)
+        while true do
+            hue = (hue + rate) % 1
+            Frame.BorderColor3 = Color3.fromHSV(hue, 1, 1)
+            wait(0.03)
+        end
+    end
 
-Frame.InputChanged:Connect(function(input)
-	if isDragging and input.UserInputType == Enum.UserInputType.Touch then
-		local delta = input.Position - dragStartPos
-		Frame.Position = UDim2.new(frameStartPos.X.Scale,
-			frameStartPos.X.Offset + delta.X,
-			frameStartPos.Y.Scale,
-			frameStartPos.Y.Offset + delta.Y)
-	end
-end)
+    coroutine.wrap(RainbowBorder)()
 
-Frame.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.Touch and
-		input.UserInputState == Enum.UserInputState.End then
-		isDragging = false
-	end
-end)
+    local isDragging = false
+    local dragStartPos = nil
+    local frameStartPos = nil
 
-TextButton.MouseButton1Down:Connect(function()
-	game:GetService("VirtualInputManager"):SendKeyEvent(true, "Home", false, -- function to hide the script
-	game)
-end)
+    Frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch and
+            input.UserInputState == Enum.UserInputState.Begin then
+            isDragging = true
+            dragStartPos = input.Position
+            frameStartPos = Frame.Position
+        end
+    end)
+
+    Frame.InputChanged:Connect(function(input)
+        if isDragging and input.UserInputType == Enum.UserInputType.Touch then
+            local delta = input.Position - dragStartPos
+            Frame.Position = UDim2.new(frameStartPos.X.Scale,
+                                       frameStartPos.X.Offset + delta.X,
+                                       frameStartPos.Y.Scale,
+                                       frameStartPos.Y.Offset + delta.Y)
+        end
+    end)
+
+    Frame.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch and
+            input.UserInputState == Enum.UserInputState.End then
+            isDragging = false
+        end
+    end)
+
+    TextButton.MouseButton1Down:Connect(function()
+        game:GetService("VirtualInputManager"):SendKeyEvent(true, "Home", false,
+                                                            game)
+    end)
+end
