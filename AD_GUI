@@ -98,11 +98,11 @@ if (library.theme.cursor and Drawing) then
 	end
 end
 library.ConfigSystem = function(self, name)
-	if not isfolder("!SLH_Hub") then
-		makefolder("!SLH_Hub");
+	if not isfolder("!Jeikaru_Hub") then
+		makefolder("!Jeikaru_Hub");
 	end
 	local configSystem = {};
-	configSystem.configFolder = "!SLH_Hub/" .. tostring(game.Players.LocalPlayer.Name) .. "";
+	configSystem.configFolder = "!Jeikaru_Hub/" .. tostring(game.Players.LocalPlayer.Name) .. "";
 	if not isfolder(configSystem.configFolder) then
 		makefolder(tostring(configSystem.configFolder));
 	end
@@ -3118,7 +3118,7 @@ library.CreateWindow = function(self, name, hidebutton)
 			return sector;
 		end;
 		pcall(function()
-			makefolder("!SLH_Hub");
+			makefolder("!Jeikaru_Hub");
 		end);
 		table.insert(window.Tabs, tab);
 		return tab;
@@ -3472,7 +3472,7 @@ if not game:GetService("CoreGui"):FindFirstChild("Credit") then
 	TexT.Position = UDim2.new(0.5, 0, 0.5, 0);
 	TexT.Size = UDim2.new(1, 0, 1, 0);
 	TexT.Font = Enum.Font.PermanentMarker;
-	TexT.Text = "YT: SmellLikeHacker";
+	TexT.Text = "YT: Jeikaru Otori";
 	TexT.TextColor3 = Color3.fromRGB(255, 0, 4);
 	TexT.TextScaled = true;
 	TexT.TextWrapped = true;
