@@ -1,0 +1,8 @@
+local bannerlist = {
+"Speedwagon",
+"Hoshino", 
+"W3Octo", 
+"Starpass6", 
+"Starpass7"
+}
+return bannerlist;
