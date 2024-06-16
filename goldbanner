@@ -1,0 +1,19 @@
+local goldunit = {
+    "Curse", "Curse II", "Curse III", "Curse IV", "Curse V",
+    "Ice Soldier", "Ice Soldier II", "Ice Soldier III", "Ice Soldier IV", "Ice Soldier V",
+    "Apostle", "Apostle II", "Apostle III", "Apostle IV", "Apostle V",
+    "Strong Alien Soldier", "Strong Alien Soldier II", "Strong Alien Soldier III",
+    "Desert Ninja", "Desert Ninja II", "Desert Ninja III", "Desert Ninja IV", "Desert Ninja V",
+    "Angel", "Angel II", "Angel III", "Angel IV", "Angel V",
+    "Evolved Namu", "Evolved Namu II", "Evolved Namu III", "Evolved Namu IV", "Evolved Namu V",
+    "Soul Swordsman", "Soul Swordsman II", "Soul Swordsman III", "Soul Swordsman IV", "Soul Swordsman V",
+    "Zio Agent", "Zio Agent II", "Zio Agent III", "Zio Agent IV", "Zio Agent V",
+    "Ant Specialist", "Ant Specialist II", "Ant Specialist III", "Ant Specialist IV", "Ant Specialist V",
+    "Strong Giant", "Strong Giant II",
+    "Strong Fiend", "Strong Fiend II", "Strong Fiend III", "Strong Fiend IV", "Strong Fiend V",
+    "Goddess", "Goddess II", "Goddess III", "Goddess IV", "Goddess V",
+    "Super Mage", "Super Mage II", "Super Mage III", "Super Mage IV", "Super Mage V",
+    "Dimple 1", "Dimple 2", "Dimple 3",
+    "Demon Fighter I", "Demon Fighter II", "Demon Fighter III", "Esper V", "Homunculus"
+}
+return goldunit;
