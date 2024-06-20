@@ -290,3 +290,4 @@ if not game:GetService("CoreGui"):FindFirstChild("Jeikaru") then
 		end);
 	end);
 end
+print("hi")
