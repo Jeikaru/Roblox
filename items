@@ -33,4 +33,4 @@ local items = {
     "Dimple 1", "Dimple 2", "Dimple 3",
     "Demon Fighter I", "Demon Fighter II", "Demon Fighter III", "Esper V", "Homunculus", "Homunculus II", "Homunculus III", "Homunculus IV", "Homunculus V"
 }
-return items;
+return itemsandunits;
