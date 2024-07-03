@@ -82,5 +82,5 @@ local function startfpsboost()
     end)
 end
 
-wait(10) -- 10-second delay
+wait(5)
 startfpsboost()
