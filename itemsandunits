@@ -1,4 +1,4 @@
-local items = { 
+local itemsandunits = { 
     "BuuEvolve1", "2000 Gems", "Vegu Scouter", "Destroyed World T3 SS", "Emerald Capsule", "HandEvolve", "Lucky Capsule", "SamuraiEvolve2", 
     "Pumpkin Capsule [+]", "MysteriousCube", "Easter Capsule", "Easter Capsule [+]", "EvolveToken", "Venom Token", "50 Gems", "Destroyed World T1 SS", 
     "MadokaOrb", "MarkswomanEvolve", "13000 Gems", "Zamasu Token", "PowerPoleEvo", "Super Fireworks", "DekuEvolve1", "Ghostly Capsule", "Mysterious Necklace", 
