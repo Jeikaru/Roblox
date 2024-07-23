@@ -120,7 +120,7 @@ library.ConfigSystem = function(self, mainFolder, subFolder, userFolder, name)
     local configFilePath = configFolder .. "/" .. userFolder .. "/" .. name .. ".json"
 
     if not isfile(configFilePath) then
-        writefile(configFilePath, httpService:JSONEncode(DefaultSettings))
+        writefile(configFilePath, httpservice:JSONEncode(DefaultSettings))
         print("Default settings saved to " .. configFilePath)
     end
 
@@ -130,7 +130,7 @@ library.ConfigSystem = function(self, mainFolder, subFolder, userFolder, name)
     configSystem.Load = function(self)
         local success, result = pcall(readfile, self.configFilePath)
         if success then
-            local readConfig = httpService:JSONDecode(result)
+            local readConfig = httpservice:JSONDecode(result)
             for key, value in pairs(readConfig) do
                 library.flags[key] = value
             end
@@ -160,7 +160,7 @@ library.ConfigSystem = function(self, mainFolder, subFolder, userFolder, name)
                 config[i] = v
             end
         end
-        writefile(self.configFilePath, httpService:JSONEncode(config))
+        writefile(self.configFilePath, httpservice:JSONEncode(config))
     end
 
     return configSystem
