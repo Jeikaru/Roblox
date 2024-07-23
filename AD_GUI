@@ -114,7 +114,7 @@ library.ConfigSystem = function(self, mainFolder, subFolder, name)
         makefolder(configFolder)
     end
 
-    local configFilePath = configFolder .. "/" .. name -- Fixed to avoid creating a folder
+    local configFilePath = configFolder .. "/" .. name .. ".txt" -- Ensure the file extension is consistent
 
     if not isfile(configFilePath) then
         writefile(configFilePath, httpservice:JSONEncode(DefaultSettings))
@@ -125,22 +125,43 @@ library.ConfigSystem = function(self, mainFolder, subFolder, name)
     configSystem.configFilePath = configFilePath
 
     configSystem.Load = function(self)
-        local success, result = pcall(readfile, self.configFilePath)
-        if success then
-            local readConfig = httpservice:JSONDecode(result)
-            for key, value in pairs(readConfig) do
-                library.flags[key] = value
-            end
+        local success, content = pcall(function()
+            return readfile(self.configFilePath)
+        end)
 
-            for i, v in pairs(library.flags) do
-                for i2, v2 in pairs(library.items) do
-                    if v2.flag == i then
-                        pcall(function()
-                            v2:Set(v)
-                        end)
+        if success then
+            pcall(function()
+                local readConfig = httpservice:JSONDecode(content)
+                local newConfig = {}
+                for i, v in pairs(readConfig) do
+                    if typeof(v) == "table" then
+                        if typeof(v[1]) == "number" then
+                            newConfig[i] = Color3.new(v[1], v[2], v[3])
+                        elseif typeof(v[1]) == "table" then
+                            newConfig[i] = v[1]
+                        end
+                    elseif tostring(v):find("Enum.KeyCode.") then
+                        newConfig[i] = Enum.KeyCode[tostring(v):gsub("Enum.KeyCode.", "")]
+                    else
+                        newConfig[i] = v
                     end
                 end
-            end
+                library.flags = newConfig
+                for i, v in pairs(library.flags) do
+                    for i2, v2 in pairs(library.items) do
+                        if i and i ~= "" and i ~= "Configs_Name" and i ~= "Configs" and v2.flag then
+                            if v2.flag == i then
+                                pcall(function()
+                                    v2:Set(v)
+                                    print(v2.flag, v)
+                                end)
+                            end
+                        end
+                    end
+                end
+            end)
+        else
+            print("Failed to load config: " .. content)
         end
     end
 
