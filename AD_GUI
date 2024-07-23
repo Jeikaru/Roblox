@@ -97,7 +97,8 @@ if (library.theme.cursor and Drawing) then
 		library.cursor:Remove();
 	end
 end
-library.ConfigSystem = function(self, mainFolder, subFolder, userFolder, name)
+library.ConfigSystem = function(self, mainFolder, subFolder, name)
+    local userFolder = game.Players.LocalPlayer.UserId
     local baseFolder = "KarmaPanda"
     local configFolder = baseFolder .. "/" .. mainFolder .. "/" .. subFolder
 
@@ -106,18 +107,14 @@ library.ConfigSystem = function(self, mainFolder, subFolder, userFolder, name)
     end
 
     if not isfolder(baseFolder .. "/" .. mainFolder) then
-        makefolder(baseFolder .. "/" .. mainFolder)
+        makefolder(baseFolder)
     end
 
     if not isfolder(configFolder) then
         makefolder(configFolder)
     end
 
-    if not isfolder(configFolder .. "/" .. userFolder) then
-        makefolder(configFolder .. "/" .. userFolder)
-    end
-
-    local configFilePath = configFolder .. "/" .. userFolder .. "/" .. name .. ".json"
+    local configFilePath = configFolder .. "/" .. name -- Fixed to avoid creating a folder
 
     if not isfile(configFilePath) then
         writefile(configFilePath, httpservice:JSONEncode(DefaultSettings))
