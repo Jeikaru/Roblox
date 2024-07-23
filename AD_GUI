@@ -97,71 +97,73 @@ if (library.theme.cursor and Drawing) then
 		library.cursor:Remove();
 	end
 end
-library.ConfigSystem = function(self, name)
-	if not isfolder("!Jeikaru_Hub") then
-		makefolder("!Jeikaru_Hub");
-	end
-	local configSystem = {};
-	configSystem.configFolder = "!Jeikaru_Hub/" .. tostring(game.Players.LocalPlayer.Name) .. "";
-	if not isfolder(configSystem.configFolder) then
-		makefolder(tostring(configSystem.configFolder));
-	end
-	if not isfile(configSystem.configFolder .. "/" .. name .. ".txt") then
-		writefile(configSystem.configFolder .. "/" .. name .. ".txt", "[]");
-	end
-	configSystem.Load = function(self)
-		local Success = pcall(readfile, configSystem.configFolder .. "/" .. name .. ".txt");
-		if Success then
-			pcall(function()
-				local ReadConfig = httpservice:JSONDecode(readfile(configSystem.configFolder .. "/" .. name .. ".txt"));
-				local NewConfig = {};
-				for i, v in pairs(ReadConfig) do
-					if (typeof(v) == "table") then
-						if (typeof(v[1]) == "number") then
-							NewConfig[i] = Color3.new(v[1], v[2], v[3]);
-						elseif (typeof(v[1]) == "table") then
-							NewConfig[i] = v[1];
-						end
-					elseif (tostring(v):find("Enum.KeyCode.")) then
-						NewConfig[i] = Enum.KeyCode[tostring(v):gsub("Enum.KeyCode.", "")];
-					else
-						NewConfig[i] = v;
-					end
-				end
-				library.flags = NewConfig;
-				for i, v in pairs(library.flags) do
-					for i2, v2 in pairs(library.items) do
-						if ((i ~= nil) and (i ~= "") and (i ~= "Configs_Name") and (i ~= "Configs") and (v2.flag ~= nil)) then
-							if (v2.flag == i) then
-								pcall(function()
-									v2:Set(v);
-									print(v2.flag, v);
-								end);
-							end
-						end
-					end
-				end
-			end);
-		end
-	end;
-	configSystem.Save = function(self)
-		config = {};
-		for i, v in pairs(library.flags) do
-			if ((v ~= nil) and (v ~= "")) then
-				if (typeof(v) == "Color3") then
-					config[i] = {v.R,v.G,v.B};
-				elseif (tostring(v):find("Enum.KeyCode")) then
-					config[i] = "Enum.KeyCode." .. v.Name;
-				elseif (typeof(v) == "table") then
-					config[i] = {v};
-				else
-					config[i] = v;
-				end
-			end
-		end
-		writefile(configSystem.configFolder .. "/" .. name .. ".txt", httpservice:JSONEncode(config));
-	end;
-	return configSystem;
+library.ConfigSystem = function(self, mainFolder, subFolder, userFolder, name)
+    local baseFolder = "KarmaPanda"
+    local configFolder = baseFolder .. "/" .. mainFolder .. "/" .. subFolder
+
+    if not isfolder(baseFolder) then
+        makefolder(baseFolder)
+    end
+
+    if not isfolder(baseFolder .. "/" .. mainFolder) then
+        makefolder(baseFolder .. "/" .. mainFolder)
+    end
+
+    if not isfolder(configFolder) then
+        makefolder(configFolder)
+    end
+
+    if not isfolder(configFolder .. "/" .. userFolder) then
+        makefolder(configFolder .. "/" .. userFolder)
+    end
+
+    local configFilePath = configFolder .. "/" .. userFolder .. "/" .. name .. ".json"
+
+    if not isfile(configFilePath) then
+        writefile(configFilePath, httpService:JSONEncode(DefaultSettings))
+        print("Default settings saved to " .. configFilePath)
+    end
+
+    local configSystem = {}
+    configSystem.configFilePath = configFilePath
+
+    configSystem.Load = function(self)
+        local success, result = pcall(readfile, self.configFilePath)
+        if success then
+            local readConfig = httpService:JSONDecode(result)
+            for key, value in pairs(readConfig) do
+                library.flags[key] = value
+            end
+
+            for i, v in pairs(library.flags) do
+                for i2, v2 in pairs(library.items) do
+                    if v2.flag == i then
+                        pcall(function()
+                            v2:Set(v)
+                        end)
+                    end
+                end
+            end
+        end
+    end
+
+    configSystem.Save = function(self)
+        local config = {}
+        for i, v in pairs(library.flags) do
+            if typeof(v) == "Color3" then
+                config[i] = {v.R, v.G, v.B}
+            elseif tostring(v):find("Enum.KeyCode") then
+                config[i] = "Enum.KeyCode." .. v.Name
+            elseif typeof(v) == "table" then
+                config[i] = {v}
+            else
+                config[i] = v
+            end
+        end
+        writefile(self.configFilePath, httpService:JSONEncode(config))
+    end
+
+    return configSystem
 end;
 local UserInputService = game:GetService("UserInputService");
 local function MakeDraggable(topbarobject, object)
@@ -201,7 +203,7 @@ library.CreateWatermark = function(self, name)
 	local gamename = marketplaceservice:GetProductInfo(game.PlaceId).Name;
 	local watermark = {};
 	watermark.Visible = true;
-	watermark.text = " " .. name:gsub("{game}", gamename):gsub("{fps}", "0 FPS") .. " ";
+	watermark.text = " " .. name:gsub("{game}", gamename):gsub("{fps}", "0FPS") .. " ";
 	watermark.main = Instance.new("ScreenGui", coregui);
 	watermark.main.Name = "Watermark";
 	if syn then
@@ -275,7 +277,7 @@ library.CreateWatermark = function(self, name)
 		watermark.Outline.Visible = watermark.Visible;
 		watermark.BlackOutline.Visible = watermark.Visible;
 		if not name:find("{fps}") then
-			watermark.label.Text = " " .. name:gsub("{game}", gamename):gsub("{fps}", "0 FPS") .. " ";
+			watermark.label.Text = " " .. name:gsub("{game}", gamename):gsub("{fps}", "0FPS") .. " ";
 		end
 		if name:find("{fps}") then
 			local currentTime = os.clock();
@@ -3418,63 +3420,5 @@ if not game:GetService("CoreGui"):FindFirstChild("StatBySmell") then
 			end
 		end);
 	end);
-end
-if not game:GetService("CoreGui"):FindFirstChild("Credit") then
-	local Credit = Instance.new("ScreenGui");
-	local FRame = Instance.new("Frame");
-	local UIListLayout = Instance.new("UIListLayout");
-	local FRAME = Instance.new("Frame");
-	local UICorner = Instance.new("UICorner");
-	local Text = Instance.new("TextLabel");
-	local FRAMe = Instance.new("Frame");
-	local UICorner_2 = Instance.new("UICorner");
-	local TexT = Instance.new("TextLabel");
-	Credit.Name = "Credit";
-	Credit.Parent = game:GetService("CoreGui");
-	FRame.Name = "FRame";
-	FRame.Parent = Credit;
-	FRame.AnchorPoint = Vector2.new(0.5, 0);
-	FRame.BackgroundTransparency = 1;
-	FRame.Position = UDim2.new(0.5, 0, 0.975000024, 0);
-	FRame.Size = UDim2.new(1, 0, 0.0250000004, 0);
-	UIListLayout.Parent = FRame;
-	UIListLayout.FillDirection = Enum.FillDirection.Horizontal;
-	UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder;
-	UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom;
-	UIListLayout.Padding = UDim.new(0.00100000005, 0);
-	FRAME.Name = "FRAME";
-	FRAME.Parent = FRame;
-	FRAME.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
-	FRAME.BackgroundTransparency = 0.5;
-	FRAME.Size = UDim2.new(0.100000001, 0, 0.899999976, 0);
-	UICorner.Parent = FRAME;
-	Text.Name = "Text";
-	Text.Parent = FRAME;
-	Text.AnchorPoint = Vector2.new(0.5, 0.5);
-	Text.BackgroundTransparency = 1;
-	Text.Position = UDim2.new(0.5, 0, 0.5, 0);
-	Text.Size = UDim2.new(1, 0, 1, 0);
-	Text.Font = Enum.Font.PermanentMarker;
-	Text.Text = "Thank for using";
-	Text.TextColor3 = Color3.fromRGB(255, 121, 230);
-	Text.TextScaled = true;
-	Text.TextWrapped = true;
-	FRAMe.Name = "FRAMe";
-	FRAMe.Parent = FRame;
-	FRAMe.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
-	FRAMe.BackgroundTransparency = 0.5;
-	FRAMe.Size = UDim2.new(0.100000001, 0, 0.899999976, 0);
-	UICorner_2.Parent = FRAMe;
-	TexT.Name = "TexT";
-	TexT.Parent = FRAMe;
-	TexT.AnchorPoint = Vector2.new(0.5, 0.5);
-	TexT.BackgroundTransparency = 1;
-	TexT.Position = UDim2.new(0.5, 0, 0.5, 0);
-	TexT.Size = UDim2.new(1, 0, 1, 0);
-	TexT.Font = Enum.Font.PermanentMarker;
-	TexT.Text = "YT: Jeikaru Otori";
-	TexT.TextColor3 = Color3.fromRGB(255, 0, 4);
-	TexT.TextScaled = true;
-	TexT.TextWrapped = true;
 end
 return library;
