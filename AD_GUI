@@ -102,6 +102,7 @@ library.ConfigSystem = function(self, mainFolder, subFolder, name)
     local baseFolder = "KarmaPanda"
     local configFolder = baseFolder .. "/" .. mainFolder .. "/" .. subFolder
 
+    -- Create folders if they don't exist
     if not isfolder(baseFolder) then
         makefolder(baseFolder)
     end
@@ -114,8 +115,10 @@ library.ConfigSystem = function(self, mainFolder, subFolder, name)
         makefolder(configFolder)
     end
 
-    local configFilePath = configFolder .. "/" .. name .. ".txt" -- Ensure the file extension is consistent
+    -- Ensure the config file path includes the .txt extension
+    local configFilePath = configFolder .. "/" .. name .. ".txt"
 
+    -- Save default settings if the config file doesn't exist
     if not isfile(configFilePath) then
         writefile(configFilePath, httpservice:JSONEncode(DefaultSettings))
         print("Default settings saved to " .. configFilePath)
