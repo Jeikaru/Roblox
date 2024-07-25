@@ -3442,4 +3442,5 @@ if not game:GetService("CoreGui"):FindFirstChild("StatBySmell") then
 		end);
 	end);
 end
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Jeikaru/Roblox/main/Notification"))();
 return library;
