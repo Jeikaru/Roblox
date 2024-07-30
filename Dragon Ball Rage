@@ -1,0 +1,143 @@
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local e = workspace.Map.NPCs
+local eb = e:GetChildren()
+
+local enemies = {
+    "Goku",
+    "Jinkouman",
+    "Saibamen",
+    "Tennenman",
+    "Yardrat",
+    "Guz",
+    "Maz"
+}
+
+local bosses = {
+    "Janemba",
+    "Gogeta"
+}
+
+local currentTarget = nil
+local spamE = false
+
+local function teleportBehind(target)
+    if target and target:FindFirstChild("HumanoidRootPart") then
+        local targetHRP = target.HumanoidRootPart
+        local behindPosition = targetHRP.CFrame * CFrame.new(0, 0, 4)
+        player.Character:SetPrimaryPartCFrame(behindPosition)
+    end
+end
+
+local function spamEKey()
+    while spamE do
+        VirtualInputManager:SendKeyEvent(true, "E", false, game)
+        wait(0.1)
+    end
+end
+
+local function findNextTarget()
+    for _, target in ipairs(eb) do
+        if target.Name ~= "Dummy" and target:FindFirstChild("Humanoid") and target.Humanoid.Health > 0 then
+            return target
+        end
+    end
+    return nil
+end
+
+local function activate()
+    currentTarget = findNextTarget()
+    if currentTarget then
+        spamE = true
+        coroutine.wrap(spamEKey)()
+        while true do
+            if currentTarget and currentTarget:FindFirstChild("Humanoid") and currentTarget.Humanoid.Health > 0 then
+                teleportBehind(currentTarget)
+            else
+                currentTarget = findNextTarget()
+            end
+            wait(0.1)
+        end
+    end
+end
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "DraggableButtonGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+local function createEnemyButton(enemyName, position)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 100, 0, 50)
+    button.Position = position
+    button.BackgroundColor3 = Color3.new(0.7, 0.7, 0.7)
+    button.Text = "TP to " .. enemyName
+    button.Parent = screenGui
+
+    button.MouseButton1Click:Connect(function()
+        for _, target in ipairs(eb) do
+            if target.Name ~= "Dummy" and target.Name == enemyName and target:FindFirstChild("Humanoid") and target.Humanoid.Health > 0 then
+                currentTarget = target
+                spamE = true
+                coroutine.wrap(spamEKey)()
+                while true do
+                    if currentTarget and currentTarget:FindFirstChild("Humanoid") and currentTarget.Humanoid.Health > 0 then
+                        teleportBehind(currentTarget)
+                    else
+                        currentTarget = findNextTarget()
+                    end
+                    wait(0.1)
+                end
+                spamE = false
+                break
+            end
+        end
+    end)
+end
+
+local function createUtilityButton(buttonText, position, callback)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 100, 0, 50)
+    button.Position = position
+    button.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
+    button.Text = buttonText
+    button.Parent = screenGui
+
+    button.MouseButton1Click:Connect(callback)
+end
+
+for i, enemy in ipairs(enemies) do
+    createEnemyButton(enemy, UDim2.new(0, 10, 0, 10 + (i - 1) * 60))
+end
+
+for i, boss in ipairs(bosses) do
+    createEnemyButton(boss, UDim2.new(0, 120, 0, 10 + (i - 1) * 60))
+end
+
+createUtilityButton("Activate", UDim2.new(0, 10, 0, #enemies * 60 + 20), function()
+    activate()
+end)
+
+createUtilityButton("Kill All", UDim2.new(0, 120, 0, #bosses * 60 + 20), function()
+    for _, target in ipairs(eb) do
+        if target.Name ~= "Dummy" and target:FindFirstChild("Humanoid") and target.Humanoid.Health > 0 then
+            currentTarget = target
+            spamE = true
+            coroutine.wrap(spamEKey)()
+            while currentTarget and currentTarget:FindFirstChild("Humanoid") and currentTarget.Humanoid.Health > 0 do
+                teleportBehind(currentTarget)
+                wait(0.1)
+            end
+            spamE = false
+        end
+    end
+end)
+
+-- Ensure GUI is reparented to PlayerGui after respawn
+player.CharacterAdded:Connect(function()
+    screenGui.Parent = player:WaitForChild("PlayerGui")
+end)
