@@ -1,0 +1,102 @@
+local builds = {
+    wet_build = {
+        "The Icicle",
+        "Nature’s Embrace",
+        "Guttation Dripper",
+        "Abyssal Chain",
+        "Ore Soaker",
+        "Billy’s Fishtank",
+        "Perfect Lawn",
+        "Hand of Poseidon",
+        "Tidal Temple",
+        "Mystic Forge",
+        "Daydream Reverie"
+    },
+    vulnerability_build = {
+        "Shadow Veil",
+        "Hydrogen Tank",
+        "Sunstone Pylon",
+        "Bloodstruck Ritual"
+    },
+    fueled_build = {
+        "Galvanic Surge",
+        "Steam Engine",
+        "Metropunk Clockwork",
+        "Steampunk Overdrive",
+        "Dyson sphere",
+        "Cursed Siege"
+    },
+    fire_build_variant_a = {
+        "Celestial Light",
+        "Extreme Heat",
+        "Gates of Calamity",
+        "Abyssal Chains",
+        "Ore Soaker",
+        "Auroral Tundra",
+        "Draconic Necromancy",
+        "Express Post",
+        "Signal Transmitter",
+        "Void Shrine"
+    },
+    fire_build_variant_b = {
+        "Royale Castlekeep",
+        "Extreme Heat",
+        "Gates of Calamity",
+        "Heavenly Ruins",
+        "Bloodstruck Ritual",
+        "Express Post",
+        "Signal Transmitter",
+        "Void Shrine"
+    },
+    magnetic_build = {
+        "Iron Mine",
+        "Contamination",
+        "Radiant Star",
+        "Stellar Occultation",
+        "Data Encryption",
+        "Electrical Annihilation",
+        "Magnetron",
+        "Storm Surge",
+        "Acid Pool",
+        "Caustic Lab",
+        "Creator’s Playground",
+        "Skeletal Warlock",
+        "Signal Transmitter",
+        "Celestial Incinerator"
+    },
+    acid_build = {
+        "Corrosive Sentinel",
+        "Acid Pool",
+        "Forbidden Breeze",
+        "Caustic Lab",
+        "Bloodstruck Ritual",
+        "Dyson sphere"
+    },
+    perfumed_build = {
+        "Utopic Flower",
+        "Paradisiac Flower",
+        "Heavenly Ruins",
+        "Bloodstruck Ritual",
+        "Idyllic Flower"
+    },
+    ice_build = {
+        "The Icicle",
+        "Nature’s Embrace",
+        "Guttation Dripper",
+        "Billy’s Fishtank",
+        "Perfect Lawn",
+        "Wind Tunnel",
+        "Forbidden Breeze",
+        "Cold Snap",
+        "Snowpond Touch"
+    },
+    aired_build = {
+        "Wind Turbine",
+        "Floral Obliterator",
+        "Wind Tunnel",
+        "Forbidden Breeze",
+        "Cursed Siege",
+        "Draconic Necromancy"
+    }
+}
+return builds;
