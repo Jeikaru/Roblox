@@ -812,31 +812,31 @@ library.CreateWindow = function(self, name, hidebutton)
 				return button;
 			end;
 			sector.AddLabel = function(self, text, ranbow)
-				local label = {};
-				label.Main = Instance.new("TextLabel", sector.Items);
-				label.Main.Name = "Label";
-				label.Main.BackgroundTransparency = 1;
-				label.Main.Position = UDim2.new(0, -1, 0, 0);
-				label.Main.ZIndex = 4;
-				label.Main.AutomaticSize = Enum.AutomaticSize.X;
-				label.Main.Font = window.theme.font;
-				label.Main.Text = text;
-				label.Main.TextColor3 = window.theme.itemscolor;
-				if (ranbow == true) then
-					RainbowText(label.Main);
-				end
-				label.Main.TextSize = 15;
-				label.Main.TextStrokeTransparency = 1;
-				label.Main.TextXAlignment = Enum.TextXAlignment.Left;
-				updateevent.Event:Connect(function(theme)
-					label.Main.Font = theme.font;
-					label.Main.TextColor3 = theme.itemscolor;
-				end);
-				label.Set = function(self, value)
-					label.Main.Text = value;
-				end;
-				sector:FixSize();
-				return label;
+			    local label = {};
+			    label.Main = Instance.new("TextLabel", sector.Items);
+			    label.Main.Name = "Label";
+			    label.Main.BackgroundTransparency = 1;
+			    label.Main.Position = UDim2.new(0, -1, 0, 0);
+			    label.Main.ZIndex = 4;
+			    label.Main.AutomaticSize = Enum.AutomaticSize.X;
+			    label.Main.Font = window.theme.font;
+			    label.Main.Text = text;
+			    label.Main.TextColor3 = window.theme.itemscolor;
+			    if (ranbow == true) then
+			        RainbowText(label.Main);
+			    end
+			    label.Main.TextSize = 15;
+			    label.Main.TextStrokeTransparency = 1;
+			    label.Main.TextXAlignment = Enum.TextXAlignment.Left;
+			    updateevent.Event:Connect(function(theme)
+			        label.Main.Font = theme.font;
+			        label.Main.TextColor3 = theme.itemscolor;
+			    end);
+			    label.Set = function(self, value)
+			        label.Main.Text = value;
+			    end;
+			    sector:FixSize();
+			    return label;
 			end;
 			sector.AddToggle = function(self, text, default, callback, flag)
 				local toggle = {};
