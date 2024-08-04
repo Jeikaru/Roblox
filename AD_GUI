@@ -3404,7 +3404,6 @@ if not game:GetService("CoreGui"):FindFirstChild("StatBySmell") then
 	RainbowText(IconLabel_3);
 	RainbowImage(IconImage);
 	local script = Instance.new("LocalScript");
-	script.Parent = GuiStat;
 	local labels = script.Parent;
 	local RS = game:GetService("RunService");
 	local frames = 0;
