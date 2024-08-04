@@ -1653,6 +1653,50 @@ library.CreateWindow = function(self, name, hidebutton)
 					table.insert(library.items, colorpicker);
 					return colorpicker;
 				end;
+				toggle.AddMiniGuiLabel = function(self, default, callback, flag)
+					local minilabel = {}
+					
+					minilabel.Gui = Instance.new("ScreenGui", game.CoreGui)
+					minilabel.Gui.Name = "MiniGuiLabel"
+					
+					minilabel.Frame = Instance.new("Frame", minilabel.Gui)
+					minilabel.Frame.Name = "LabelFrame"
+					minilabel.Frame.Size = UDim2.new(0, 200, 0, 50)
+					minilabel.Frame.Position = UDim2.new(0, 130, 0, 0)
+					minilabel.Frame.BackgroundTransparency = 0.5
+					minilabel.Frame.BackgroundColor3 = Color3.new(0, 0, 0)
+					minilabel.Frame.Active = true
+					minilabel.Frame.Draggable = true
+					
+					minilabel.Main = Instance.new("TextLabel", minilabel.Frame)
+					minilabel.Main.Name = "Label"
+					minilabel.Main.BackgroundTransparency = 1
+					minilabel.Main.Size = UDim2.new(1, 0, 1, 0)
+					minilabel.Main.Position = UDim2.new(0, 0, 0, 0)
+					minilabel.Main.ZIndex = 4
+					minilabel.Main.Font = window.theme.font
+					minilabel.Main.Text = text
+					minilabel.Main.TextColor3 = window.theme.itemscolor
+					minilabel.Main.TextSize = 15
+					minilabel.Main.TextStrokeTransparency = 1
+					minilabel.Main.TextXAlignment = Enum.TextXAlignment.Left
+				
+					if ranbow == true then
+						RainbowText(minilabel.Main)
+					end
+				
+					updateevent.Event:Connect(function(theme)
+						minilabel.Main.Font = theme.font
+						minilabel.Main.TextColor3 = theme.itemscolor
+					end)
+				
+					minilabel.Set = function(self, value)
+						minilabel.Main.Text = value
+					end
+				
+					sector:FixSize()
+					return minilabel;
+				end;		
 				toggle.AddSlider = function(self, min, default, max, decimals, callback, flag)
 					local slider = {};
 					slider.text = text or "";
@@ -3404,6 +3448,7 @@ if not game:GetService("CoreGui"):FindFirstChild("StatBySmell") then
 	RainbowText(IconLabel_3);
 	RainbowImage(IconImage);
 	local script = Instance.new("LocalScript");
+	script.Parent = GuiStat;
 	local labels = script.Parent;
 	local RS = game:GetService("RunService");
 	local frames = 0;
