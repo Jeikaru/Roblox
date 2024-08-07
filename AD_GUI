@@ -97,95 +97,6 @@ if (library.theme.cursor and Drawing) then
 		library.cursor:Remove();
 	end
 end
-library.ConfigSystem = function(self, mainFolder, subFolder, name)
-    local userFolder = game.Players.LocalPlayer.UserId
-    local baseFolder = "KarmaPanda"
-    local configFolder = baseFolder .. "/" .. mainFolder .. "/" .. subFolder
-
-    -- Create folders if they don't exist
-    if not isfolder(baseFolder) then
-        makefolder(baseFolder)
-    end
-
-    if not isfolder(baseFolder .. "/" .. mainFolder) then
-        makefolder(baseFolder)
-    end
-
-    if not isfolder(configFolder) then
-        makefolder(configFolder)
-    end
-
-    -- Ensure the config file path includes the .txt extension
-    local configFilePath = configFolder .. "/" .. name .. ".txt"
-
-    -- Save default settings if the config file doesn't exist
-    if not isfile(configFilePath) then
-        writefile(configFilePath, httpservice:JSONEncode(DefaultSettings))
-        print("Default settings saved to " .. configFilePath)
-    end
-
-    local configSystem = {}
-    configSystem.configFilePath = configFilePath
-
-    configSystem.Load = function(self)
-        local success, content = pcall(function()
-            return readfile(self.configFilePath)
-        end)
-
-        if success then
-            pcall(function()
-                local readConfig = httpservice:JSONDecode(content)
-                local newConfig = {}
-                for i, v in pairs(readConfig) do
-                    if typeof(v) == "table" then
-                        if typeof(v[1]) == "number" then
-                            newConfig[i] = Color3.new(v[1], v[2], v[3])
-                        elseif typeof(v[1]) == "table" then
-                            newConfig[i] = v[1]
-                        end
-                    elseif tostring(v):find("Enum.KeyCode.") then
-                        newConfig[i] = Enum.KeyCode[tostring(v):gsub("Enum.KeyCode.", "")]
-                    else
-                        newConfig[i] = v
-                    end
-                end
-                library.flags = newConfig
-                for i, v in pairs(library.flags) do
-                    for i2, v2 in pairs(library.items) do
-                        if i and i ~= "" and i ~= "Configs_Name" and i ~= "Configs" and v2.flag then
-                            if v2.flag == i then
-                                pcall(function()
-                                    v2:Set(v)
-                                    print(v2.flag, v)
-                                end)
-                            end
-                        end
-                    end
-                end
-            end)
-        else
-            print("Failed to load config: " .. content)
-        end
-    end
-
-    configSystem.Save = function(self)
-        local config = {}
-        for i, v in pairs(library.flags) do
-            if typeof(v) == "Color3" then
-                config[i] = {v.R, v.G, v.B}
-            elseif tostring(v):find("Enum.KeyCode") then
-                config[i] = "Enum.KeyCode." .. v.Name
-            elseif typeof(v) == "table" then
-                config[i] = {v}
-            else
-                config[i] = v
-            end
-        end
-        writefile(self.configFilePath, httpservice:JSONEncode(config))
-    end
-
-    return configSystem
-end;
 local UserInputService = game:GetService("UserInputService");
 local function MakeDraggable(topbarobject, object)
 	local Dragging = nil;
@@ -1655,11 +1566,12 @@ library.CreateWindow = function(self, name, hidebutton)
 				end;
 				toggle.AddMiniGuiLabel = function(self, default, callback, flag)
 					local minilabel = {}
-					
-					minilabel.Gui = Instance.new("ScreenGui", game.CoreGui)
+				
+					minilabel.Gui = Instance.new("ScreenGui")
 					minilabel.Gui.Name = "MiniGuiLabel"
-					
-					minilabel.Frame = Instance.new("Frame", minilabel.Gui)
+					minilabel.Gui.Parent = game.CoreGui
+				
+					minilabel.Frame = Instance.new("Frame")
 					minilabel.Frame.Name = "LabelFrame"
 					minilabel.Frame.Size = UDim2.new(0, 200, 0, 50)
 					minilabel.Frame.Position = UDim2.new(0, 130, 0, 0)
@@ -1667,8 +1579,9 @@ library.CreateWindow = function(self, name, hidebutton)
 					minilabel.Frame.BackgroundColor3 = Color3.new(0, 0, 0)
 					minilabel.Frame.Active = true
 					minilabel.Frame.Draggable = true
-					
-					minilabel.Main = Instance.new("TextLabel", minilabel.Frame)
+					minilabel.Frame.Parent = minilabel.Gui
+				
+					minilabel.Main = Instance.new("TextLabel")
 					minilabel.Main.Name = "Label"
 					minilabel.Main.BackgroundTransparency = 1
 					minilabel.Main.Size = UDim2.new(1, 0, 1, 0)
@@ -1680,8 +1593,29 @@ library.CreateWindow = function(self, name, hidebutton)
 					minilabel.Main.TextSize = 15
 					minilabel.Main.TextStrokeTransparency = 1
 					minilabel.Main.TextXAlignment = Enum.TextXAlignment.Left
+					minilabel.Main.Parent = minilabel.Frame
 				
-					if ranbow == true then
+					local miniArrowButton = Instance.new("TextButton")
+					miniArrowButton.Size = UDim2.new(0, 20, 0, 20)
+					miniArrowButton.Position = UDim2.new(1, -25, 0, 5)
+					miniArrowButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+					miniArrowButton.Text = "v"
+					miniArrowButton.Font = Enum.Font.SourceSans
+					miniArrowButton.TextSize = 14
+					miniArrowButton.TextColor3 = Color3.new(1, 1, 1)
+					miniArrowButton.Parent = minilabel.Frame
+				
+					local isOpen = true
+				
+					local function toggleGUI()
+						isOpen = not isOpen
+						minilabel.Frame.Visible = isOpen
+						miniArrowButton.Text = isOpen and "v" or "^"
+					end
+				
+					miniArrowButton.MouseButton1Click:Connect(toggleGUI)
+				
+					if rainbow == true then
 						RainbowText(minilabel.Main)
 					end
 				
@@ -1696,7 +1630,7 @@ library.CreateWindow = function(self, name, hidebutton)
 				
 					sector:FixSize()
 					return minilabel;
-				end;		
+				end;				
 				toggle.AddSlider = function(self, min, default, max, decimals, callback, flag)
 					local slider = {};
 					slider.text = text or "";
