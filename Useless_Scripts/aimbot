@@ -1,0 +1,78 @@
+local a = workspace.CurrentCamera
+local b = game:GetService("Players")
+local c = game:GetService("RunService")
+local d = game:GetService("UserInputService")
+local e = game:GetService("TweenService")
+local f = b.LocalPlayer
+local g = false
+
+_G.AimbotEnabled = false
+_G.TeamCheck = false
+_G.AimPart = "Head"
+_G.Sensitivity = 2
+
+local function h()
+    local i = math.huge
+    local j = nil
+  
+    coroutine.wrap(function()
+        wait(20)
+        i = math.huge -- Reset the MaximumDistance
+    end)()
+
+    for _, k in next, b:GetPlayers() do
+        if k.Name ~= f.Name then
+            if _G.TeamCheck == true then
+                if k.Team ~= f.Team then
+                    if k.Character ~= nil then
+                        if k.Character:FindFirstChild("HumanoidRootPart") ~= nil then
+                            if k.Character:FindFirstChild("Humanoid") ~= nil and k.Character:FindFirstChild("Humanoid").Health ~= 0 then
+                                local l = a:WorldToScreenPoint(k.Character:WaitForChild("HumanoidRootPart", math.huge).Position)
+                                local m = (Vector2.new(d:GetMouseLocation().X, d:GetMouseLocation().Y) - Vector2.new(l.X, l.Y)).Magnitude
+                                
+                                if m < i then
+                                    j = k
+                                    i = m
+                                end
+                            end
+                        end
+                    end
+                end
+            else
+                if k.Character ~= nil then
+                    if k.Character:FindFirstChild("HumanoidRootPart") ~= nil then
+                        if k.Character:FindFirstChild("Humanoid") ~= nil and k.Character:FindFirstChild("Humanoid").Health ~= 0 then
+                            local l = a:WorldToScreenPoint(k.Character:WaitForChild("HumanoidRootPart", math.huge).Position)
+                            local m = (Vector2.new(d:GetMouseLocation().X, d:GetMouseLocation().Y) - Vector2.new(l.X, l.Y)).Magnitude
+                            
+                            if m < i then
+                                j = k
+                                i = m
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    return j
+end
+
+d.InputBegan:Connect(function(n)
+    if n.UserInputType == Enum.UserInputType.MouseButton2 then
+        g = true
+    end
+end)
+
+d.InputEnded:Connect(function(n)
+    if n.UserInputType == Enum.UserInputType.MouseButton2 then
+        g = false
+    end
+end)
+
+c.RenderStepped:Connect(function()
+    if g == true and _G.AimbotEnabled == true then
+        e:Create(a, TweenInfo.new(_G.Sensitivity, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = CFrame.new(a.CFrame.Position, h().Character[_G.AimPart].Position)}):Play()
+    end
+end)
