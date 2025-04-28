@@ -1204,12 +1204,12 @@ if _G.Interface == nil then
     end)
 
     coroutine.wrap(function()
-        local Action = {
-            ['Upgrade'] = "Upgrade",
-            ['Target'] = "ChangeTargeting",
-            ['Sell'] = "Sell",
-            ['Place'] = "PlaceTower",
-            ['Ability'] = "Ability"
+        local ActionNames = {
+            ["Upgrade"] = true,
+            ["ChangeTargeting"] = true,
+            ["Sell"] = true,
+            ["PlaceTower"] = true,
+            ["Ability"] = true,
         }
     
         local OldNamecall
@@ -1218,65 +1218,71 @@ if _G.Interface == nil then
             local args = {...}
     
             if not checkcaller() and (method == "FireServer" or method == "InvokeServer") then
-                local actionName = tostring(self)
-                if Options.macrotabs.Value and Isrecording and Action[actionName] and not workspace:FindFirstChild("Lobby") then
-                    local Mapname = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("MapName")
-                    local Game_time = Rep:FindFirstChild("ElapsedTime") or {Value = 0}
-                    local Wave = Rep:FindFirstChild("Wave") or {Value = 1}
+                local RemotesFolder = Rep:WaitForChild("Remotes")
     
-                    if not macro_forsave[Options.macrotabs.Value] then
-                        macro_forsave[Options.macrotabs.Value] = {
-                            index = 0,
-                            Actions = {},
-                            Map = Mapname and Mapname.Value or "Unknown"
-                        }
-                    end
+                if typeof(self) == "Instance" and self:IsDescendantOf(RemotesFolder) then
+                    local remoteName = self.Name
     
-                    macro_forsave[Options.macrotabs.Value].index += 1
+                    if Options.macrotabs.Value and Isrecording and ActionNames[remoteName] then
+                        local Game_time = Rep:FindFirstChild("ElapsedTime") or {Value = 0}
+                        local Wave = Rep:FindFirstChild("Wave") or {Value = 1}
+                        local Mapname = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("MapName")
     
-                    -- Prepare arguments
-                    local Arguments = {}
-                    for _, arg in pairs(args) do
-                        if typeof(arg) == "CFrame" then
-                            table.insert(Arguments, {Value = {arg:GetComponents()}, Type = "CFrame"})
-                        else
-                            table.insert(Arguments, {Value = tostring(arg), Type = "string"})
+                        if not macro_forsave[Options.macrotabs.Value] then
+                            macro_forsave[Options.macrotabs.Value] = {
+                                index = 0,
+                                Actions = {},
+                                Map = Mapname and Mapname.Value or "Unknown"
+                            }
                         end
-                    end
     
-                    local unit_index = nil
+                        macro_forsave[Options.macrotabs.Value].index += 1
     
-                    if actionName == "PlaceTower" then
-                        getgenv().Unit_index += 1
-                        unit_index = Tower_add(Ply, getgenv().Unit_index, true)
-                    else
-                        for _, unit in ipairs(workspace:FindFirstChild("Towers"):GetChildren()) do
-                            local owner = unit:FindFirstChild("Owner")
-                            if owner and tostring(owner.Value) == Ply.Name and unit == args[1] then
-                                unit_index = unit:FindFirstChild("Unit_index") and unit.Unit_index.Value
+                        -- Serialize args
+                        local Arguments = {}
+                        for _, arg in pairs(args) do
+                            if typeof(arg) == "CFrame" then
+                                table.insert(Arguments, {Value = {arg:GetComponents()}, Type = "CFrame"})
+                            else
+                                table.insert(Arguments, {Value = tostring(arg), Type = "string"})
                             end
                         end
+    
+                        local unit_index = nil
+    
+                        if remoteName == "PlaceTower" then
+                            getgenv().Unit_index += 1
+                            unit_index = Tower_add(Ply, getgenv().Unit_index, true)
+                        else
+                            for _, unit in ipairs(workspace:FindFirstChild("Towers"):GetChildren()) do
+                                local owner = unit:FindFirstChild("Owner")
+                                if owner and tostring(owner.Value) == Ply.Name and unit == args[1] then
+                                    unit_index = unit:FindFirstChild("Unit_index") and unit.Unit_index.Value
+                                end
+                            end
+                        end
+    
+                        -- Save action
+                        table.insert(macro_forsave[Options.macrotabs.Value].Actions, {
+                            Data = {
+                                index = macro_forsave[Options.macrotabs.Value].index,
+                                action = remoteName,
+                                Args = Arguments,
+                                Method = method,
+                                Wave = Wave.Value,
+                                Unit_index = unit_index
+                            },
+                            Time = Game_time.Value
+                        })
+    
+                        print("[Recorded] Action:", remoteName, "at Time:", Game_time.Value)
                     end
-    
-                    table.insert(macro_forsave[Options.macrotabs.Value].Actions, {
-                        Data = {
-                            index = macro_forsave[Options.macrotabs.Value].index,
-                            action = actionName,
-                            Args = Arguments,
-                            Method = method,
-                            Wave = Wave.Value,
-                            Unit_index = unit_index
-                        },
-                        Time = Game_time.Value
-                    })
-    
-                    print("[Macro Recorded] - Action:", actionName, "at Time:", Game_time.Value)
                 end
             end
     
             return OldNamecall(self, ...)
         end)
-    end)()    
+    end)()
 
     local secCredits = Tabs.Credits
     secCredits:AddSection("Credits")
