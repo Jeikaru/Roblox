@@ -1,3 +1,5 @@
+--loadstring(game:HttpGet("https://pastes.io/raw/animelaststandscript"))()
+
 local player = game.Players.LocalPlayer
 local HttpService = game:GetService("HttpService")
 local unitDataFile = "UnitAutoPlace.json"
@@ -9,7 +11,7 @@ local InterfaceManager =
     loadstring(
     game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua")
 )()
-local Version = "Version 1"
+local Version = "Beta 0.1"
 local Options = Fluent.Options
 
 if _G.Interface == nil then
@@ -1043,21 +1045,21 @@ if _G.Interface == nil then
     })
 
     record_toggle:OnChanged(function()
-        if Options.recordings.Value then            
-            Fluent:Notify({
+        if Options.recordings.Value then
+            Window:Dialog({
                 Title = "Start New Recording?",
                 Content = "Starting a new recording will erase the current macro!\nAre you sure you want to continue?",
-                Actions = {
-                    Accept = {
-                        Name = "Yes, Start Recording",
+                Buttons = {
+                    {
+                        Title = "Yes, Start Recording",
                         Callback = function()
                             Isrecording = true
-                            Record_state:SetTitle("Recording Status: 🟢\nRecording to: "..(Options.macrotabs.Value))
+                            Record_state:SetTitle("Recording Status: 🟢\nRecording to: "..(Options.macrotabs.Value or "None"))
                             macro_forsave[Options.macrotabs.Value] = {index = 0, Actions = {}, Map = "Unknown"}
                         end
                     },
-                    Decline = {
-                        Name = "Cancel",
+                    {
+                        Title = "Cancel",
                         Callback = function()
                             Isrecording = false
                             Options.recordings:SetValue(false)
@@ -1068,13 +1070,12 @@ if _G.Interface == nil then
             })
         else
             Isrecording = false
-            Record_state:SetTitle("Recording Status: 🔴\nRecording saved to: "..(Options.macrotabs.Value))
+            Record_state:SetTitle("Recording Status: 🔴\nRecording saved to: "..(Options.macrotabs.Value or "None"))
             if macro_forsave[Options.macrotabs.Value] then
                 Set_macro_file(macro_forsave[Options.macrotabs.Value], Options.macrotabs.Value)
             end
         end
     end)
-    
 
     UI:AddSection("Playback Controls")
     local Plays_state = UI:AddParagraph({
