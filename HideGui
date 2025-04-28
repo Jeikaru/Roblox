@@ -1,292 +1,1353 @@
-local coregui = game:GetService("CoreGui");
-repeat
-	wait();
-until game:IsLoaded()
-if not game:GetService("CoreGui"):FindFirstChild("Jeikaru") then
-	local function RainbowText(text)
-		spawn(function()
-			local add = 10;
-			wait(0.1);
-			local k = 1;
-			while k <= 255 do
-				text.TextColor3 = Color3.new(k / 255, NaN, NaN);
-				k = k + add;
-				wait();
-			end
-			while true do
-				k = 1;
-				while k <= 255 do
-					text.TextColor3 = Color3.new(255 / 255, k / 255, NaN);
-					k = k + add;
-					wait();
-				end
-				k = 1;
-				while k <= 255 do
-					text.TextColor3 = Color3.new((255 / 255) - (k / 255), 255 / 255, NaN);
-					k = k + add;
-					wait();
-				end
-				k = 1;
-				while k <= 255 do
-					text.TextColor3 = Color3.new(NaN, 255 / 255, k / 255);
-					k = k + add;
-					wait();
-				end
-				k = 1;
-				while k <= 255 do
-					text.TextColor3 = Color3.new(NaN, (255 / 255) - (k / 255), 255 / 255);
-					k = k + add;
-					wait();
-				end
-				k = 1;
-				while k <= 255 do
-					text.TextColor3 = Color3.new(k / 255, NaN, 255 / 255);
-					k = k + add;
-					wait();
-				end
-				k = 1;
-				while k <= 255 do
-					text.TextColor3 = Color3.new(255 / 255, NaN, (255 / 255) - (k / 255));
-					k = k + add;
-					wait();
-				end
-				while k <= 255 do
-					text.TextColor3 = Color3.new((255 / 255) - (k / 255), NaN, NaN);
-					k = k + add;
-					wait();
-				end
-			end
-		end);
-	end
-	local function RainbowImage(ImageColor)
-		spawn(function()
-			local add = 10;
-			wait(0.1);
-			local k = 1;
-			while k <= 255 do
-				ImageColor.ImageColor3 = Color3.new(k / 255, NaN, NaN);
-				k = k + add;
-				wait();
-			end
-			while true do
-				k = 1;
-				while k <= 255 do
-					ImageColor.ImageColor3 = Color3.new(255 / 255, k / 255, NaN);
-					k = k + add;
-					wait();
-				end
-				k = 1;
-				while k <= 255 do
-					ImageColor.ImageColor3 = Color3.new((255 / 255) - (k / 255), 255 / 255, NaN);
-					k = k + add;
-					wait();
-				end
-				k = 1;
-				while k <= 255 do
-					ImageColor.ImageColor3 = Color3.new(NaN, 255 / 255, k / 255);
-					k = k + add;
-					wait();
-				end
-				k = 1;
-				while k <= 255 do
-					ImageColor.ImageColor3 = Color3.new(NaN, (255 / 255) - (k / 255), 255 / 255);
-					k = k + add;
-					wait();
-				end
-				k = 1;
-				while k <= 255 do
-					ImageColor.ImageColor3 = Color3.new(k / 255, NaN, 255 / 255);
-					k = k + add;
-					wait();
-				end
-				k = 1;
-				while k <= 255 do
-					ImageColor.ImageColor3 = Color3.new(255 / 255, NaN, (255 / 255) - (k / 255));
-					k = k + add;
-					wait();
-				end
-				while k <= 255 do
-					ImageColor.ImageColor3 = Color3.new((255 / 255) - (k / 255), NaN, NaN);
-					k = k + add;
-					wait();
-				end
-			end
-		end);
-	end
-	local GuiStat = Instance.new("ScreenGui");
-	local TopbarContainer = Instance.new("Frame");
-	local _1FPSCount = Instance.new("Frame");
-	local IconButton = Instance.new("TextButton");
-	local UICorner = Instance.new("UICorner");
-	local IconLabel = Instance.new("TextLabel");
-	local _3PingCount = Instance.new("Frame");
-	local IconButton_2 = Instance.new("TextButton");
-	local UICorner_2 = Instance.new("UICorner");
-	local IconLabel_2 = Instance.new("TextLabel");
-	local UIListLayout = Instance.new("UIListLayout");
-	local _2ToggleMenu = Instance.new("Frame");
-	local IconButton_3 = Instance.new("TextButton");
-	local IconImage = Instance.new("ImageLabel");
-	local IconLabel_3 = Instance.new("TextLabel");
-	local UICorner_3 = Instance.new("UICorner");
-	GuiStat.Name = "Jeikaru";
-	GuiStat.Parent = game:GetService("CoreGui");
-	GuiStat.ResetOnSpawn = false;
-	GuiStat.ZIndexBehavior = Enum.ZIndexBehavior.Sibling;
-	GuiStat.IgnoreGuiInset = true;
-	GuiStat.AutoLocalize = true;
-	GuiStat.ZIndexBehavior = "Global";
-	GuiStat.ScreenInsets = "DeviceSafeInsets";
-	TopbarContainer.Name = "Frame";
-	TopbarContainer.Parent = GuiStat;
-	TopbarContainer.BackgroundTransparency = 1;
-	TopbarContainer.Position = UDim2.new(0.105, 0, 0, 3);
-	TopbarContainer.Size = UDim2.new(0.800000012, 0, 0.0299999993, 0);
-	_1FPSCount.Name = "1FPSCount";
-	_1FPSCount.Parent = TopbarContainer;
-	_1FPSCount.BackgroundTransparency = 1;
-	_1FPSCount.LayoutOrder = 7;
-	_1FPSCount.Position = UDim2.new(0, 265, 0, 4);
-	_1FPSCount.Size = UDim2.new(0, 86, 0, 32);
-	IconButton.Name = "IconButton";
-	IconButton.Parent = _1FPSCount;
-	IconButton.Active = false;
-	IconButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
-	IconButton.BackgroundTransparency = 0.5;
-	IconButton.BorderSizePixel = 0;
-	IconButton.Size = UDim2.new(1, 0, 1, 0);
-	IconButton.ZIndex = 10;
-	IconButton.AutoButtonColor = false;
-	IconButton.Text = "";
-	IconButton.TextTransparency = 1;
-	UICorner.Parent = IconButton;
-	IconLabel.Name = "IconLabel";
-	IconLabel.Parent = IconButton;
-	IconLabel.AnchorPoint = Vector2.new(0, 0.5);
-	IconLabel.BackgroundTransparency = 1;
-	IconLabel.ClipsDescendants = true;
-	IconLabel.Position = UDim2.new(0, 12, 0.5, 0);
-	IconLabel.Size = UDim2.new(1, -24, 0.449999988, 7);
-	IconLabel.ZIndex = 11;
-	IconLabel.Font = Enum.Font.GothamMedium;
-	IconLabel.Text = "FPS: 0";
-	IconLabel.TextColor3 = Color3.fromRGB(255, 255, 255);
-	IconLabel.TextSize = 14;
-	_3PingCount.Name = "3PingCount";
-	_3PingCount.Parent = TopbarContainer;
-	_3PingCount.BackgroundTransparency = 1;
-	_3PingCount.LayoutOrder = 8;
-	_3PingCount.Position = UDim2.new(0, 363, 0, 4);
-	_3PingCount.Size = UDim2.new(0, 107, 0, 32);
-	IconButton_2.Name = "IconButton";
-	IconButton_2.Parent = _3PingCount;
-	IconButton_2.Active = false;
-	IconButton_2.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
-	IconButton_2.BackgroundTransparency = 0.5;
-	IconButton_2.BorderSizePixel = 0;
-	IconButton_2.Size = UDim2.new(1, 0, 1, 0);
-	IconButton_2.ZIndex = 10;
-	IconButton_2.AutoButtonColor = false;
-	IconButton_2.Text = "";
-	IconButton_2.TextTransparency = 1;
-	UICorner_2.Parent = IconButton_2;
-	IconLabel_2.Name = "IconLabel";
-	IconLabel_2.Parent = IconButton_2;
-	IconLabel_2.AnchorPoint = Vector2.new(0, 0.5);
-	IconLabel_2.BackgroundTransparency = 1;
-	IconLabel_2.ClipsDescendants = true;
-	IconLabel_2.Position = UDim2.new(0, 12, 0.5, 0);
-	IconLabel_2.Size = UDim2.new(1, -24, 0.449999988, 7);
-	IconLabel_2.ZIndex = 11;
-	IconLabel_2.Font = Enum.Font.GothamMedium;
-	IconLabel_2.Text = "Ping: 0 ms";
-	IconLabel_2.TextColor3 = Color3.fromRGB(255, 255, 255);
-	IconLabel_2.TextSize = 14;
-	UIListLayout.Parent = TopbarContainer;
-	UIListLayout.FillDirection = Enum.FillDirection.Horizontal;
-	UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center;
-	UIListLayout.Padding = UDim.new(0, 10);
-	_2ToggleMenu.Name = "2ToggleMenu";
-	_2ToggleMenu.Parent = TopbarContainer;
-	_2ToggleMenu.BackgroundTransparency = 1;
-	_2ToggleMenu.LayoutOrder = 1;
-	_2ToggleMenu.Position = UDim2.new(0, 171, 0, 4);
-	_2ToggleMenu.Size = UDim2.new(0, 82, 0, 32);
-	IconButton_3.Name = "IconButton";
-	IconButton_3.Parent = _2ToggleMenu;
-	IconButton_3.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
-	IconButton_3.BackgroundTransparency = 0.5;
-	IconButton_3.BorderSizePixel = 0;
-	IconButton_3.Size = UDim2.new(1, 0, 1, 0);
-	IconButton_3.ZIndex = 10;
-	IconButton_3.AutoButtonColor = false;
-	IconButton_3.Text = "";
-	IconButton_3.TextTransparency = 1;
-	IconImage.Name = "IconImage";
-	IconImage.Parent = IconButton_3;
-	IconImage.AnchorPoint = Vector2.new(0, 0.5);
-	IconImage.BackgroundTransparency = 1;
-	IconImage.Position = UDim2.new(0, 12, 0.5, 0);
-	IconImage.Size = UDim2.new(0, 15, 0.629999995, 0);
-	IconImage.ZIndex = 11;
-	IconImage.Image = "http://www.roblox.com/asset/?id=2246477671";
-	IconImage.ScaleType = Enum.ScaleType.Fit;
-	IconLabel_3.Name = "IconLabel";
-	IconLabel_3.Parent = IconButton_3;
-	IconLabel_3.AnchorPoint = Vector2.new(0, 0.5);
-	IconLabel_3.BackgroundTransparency = 1;
-	IconLabel_3.ClipsDescendants = true;
-	IconLabel_3.Position = UDim2.new(0, 35, 0.5, 0);
-	IconLabel_3.Size = UDim2.new(1, -47, 0.449999988, 7);
-	IconLabel_3.ZIndex = 11;
-	IconLabel_3.Font = Enum.Font.GothamMedium;
-	IconLabel_3.Text = "Menu";
-	IconLabel_3.TextColor3 = Color3.fromRGB(255, 255, 255);
-	IconLabel_3.TextSize = 14;
-	IconLabel_3.TextXAlignment = Enum.TextXAlignment.Left;
-	UICorner_3.Parent = IconButton_3;
-	IconButton_3.MouseButton1Down:Connect(function()
-	local vim = game:GetService("VirtualInputManager")
-	vim:SendKeyEvent(true, "LeftControl", false, game)
-    end);
-	RainbowText(IconLabel_3);
-	RainbowImage(IconImage);
-	local script = Instance.new("LocalScript");
-	script.Parent = GuiStat;
-	local labels = script.Parent;
-	local RS = game:GetService("RunService");
-	local frames = 0;
-	RS.RenderStepped:Connect(function()
-		frames = frames + 1;
-	end);
-	task.spawn(function()
-		pcall(function()
-			while wait(1) do
-				pcall(function()
-					if (tonumber(frames) < 10) then
-						labels.Frame["1FPSCount"].IconButton.IconLabel.TextColor3 = Color3.fromRGB(255, 0, 0);
-					elseif (tonumber(frames) <= 30) then
-						labels.Frame["1FPSCount"].IconButton.IconLabel.TextColor3 = Color3.fromRGB(255, 255, 0);
-					elseif (tonumber(frames) > 30) then
-						labels.Frame["1FPSCount"].IconButton.IconLabel.TextColor3 = Color3.fromRGB(0, 255, 0);
-					end
-					labels.Frame["1FPSCount"].IconButton.IconLabel.Text = "FPS " .. frames;
-					frames = 0;
-					local ping = math.round(tonumber(string.split(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString(), "(")[1]));
-					labels.Frame["3PingCount"].IconButton.IconLabel.Text = "Ping: " .. ping .. " ms";
-					if (ping < 100) then
-						labels.Frame["3PingCount"].IconButton.IconLabel.TextColor3 = Color3.fromRGB(0, 255, 0);
-					elseif (ping < 200) then
-						labels.Frame["3PingCount"].IconButton.IconLabel.TextColor3 = Color3.fromRGB(255, 255, 0);
-					elseif (ping < 300) then
-						labels.Frame["3PingCount"].IconButton.IconLabel.TextColor3 = Color3.fromRGB(255, 150, 0);
-					elseif (ping < 400) then
-						labels.Frame["3PingCount"].IconButton.IconLabel.TextColor3 = Color3.fromRGB(255, 100, 0);
-					elseif (ping < 500) then
-						labels.Frame["3PingCount"].IconButton.IconLabel.TextColor3 = Color3.fromRGB(255, 0, 0);
-					end
-				end);
-			end
-		end);
-	end);
+--loadstring(game:HttpGet("https://pastes.io/raw/animelaststandscript"))()
+
+local player = game.Players.LocalPlayer
+local HttpService = game:GetService("HttpService")
+local unitDataFile = "UnitAutoPlace.json"
+
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager =
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager =
+    loadstring(
+    game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua")
+)()
+local Version = "Beta 0.1"
+local Options = Fluent.Options
+
+if _G.Interface == nil then
+    _G.Interface = true
+    
+    Fluent:Notify(
+        {
+            Title = "Loading interface...",
+            Content = "Interface is loading, please wait.",
+            Duration = 5 -- Set to nil to make the notification not disappear
+        }
+    )
+
+    local Window =
+        Fluent:CreateWindow(
+        {
+            Title = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name .. " | " .. Version,
+            SubTitle = "Made By Dev-Jay From Karmapanda",
+            TabWidth = 100,
+            Size = UDim2.fromOffset(550, 400),
+            Acrylic = false,
+            Theme = "Darker",
+            Transparency = "false",
+            MinimizeKey = Enum.KeyCode.Home
+        }
+    )
+
+    local player = game:GetService("Players").LocalPlayer
+    local gui = player:WaitForChild("PlayerGui")
+    local Tabs = {}
+
+    Tabs.Player = Window:AddTab({Title = "Player", Icon = "user"})
+
+    if gui:FindFirstChild("Story") or gui:WaitForChild("Story", 5) then
+        Tabs.Autofarm = Window:AddTab({Title = "Autofarm", Icon = "repeat"})
+    end
+
+    -- Only show Autofarm2 if WorldModel exists inside Bottom.Frame.Frame
+    local root = gui:FindFirstChild("Bottom") and gui.Bottom:FindFirstChild("Frame") and gui.Bottom.Frame:FindFirstChild("Frame")
+
+    if root then
+        for _, desc in ipairs(root:GetDescendants()) do
+            if desc:IsA("WorldModel") then
+                Tabs.Autofarm2 = Window:AddTab({Title = "Autofarm", Icon = "repeat"})
+                break
+            end
+        end
+    end
+
+    Tabs.Credits = Window:AddTab({Title = "Credits", Icon = "book"})
+    Tabs.Settings = Window:AddTab({Title = "Settings", Icon = "settings"})
+
+    if Tabs.Autofarm then
+        local secmiscplayer = Tabs.Player:AddSection("Misc")
+
+        local autoclaimrew =
+            secmiscplayer:AddToggle("autoclaimrew", {Title = "Auto claim level rewards", Default = false})
+
+        autoclaimrew:OnChanged(
+            function()
+                if autoclaimrew.Value then
+                    while autoclaimrew.Value do
+                        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("LevelRewardsEvent"):FireServer(
+
+                        )
+                        task.wait(5)
+                    end
+                end
+            end
+        )
+
+        local autoclaimpass =
+            secmiscplayer:AddToggle("autoclaimpass", {Title = "Auto claim pass rewards", Default = false})
+
+        autoclaimpass:OnChanged(
+            function()
+                if autoclaimpass.Value then
+                    while autoclaimpass.Value do
+                        local args = {
+                            [1] = "All"
+                        }
+
+                        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("ClaimBattlePass"):FireServer(
+                            unpack(args)
+                        )
+                        task.wait(5)
+                    end
+                end
+            end
+        )
+
+        local autodailywheep =
+            secmiscplayer:AddToggle("autodailywheep", {Title = "Auto spin daily wheel", Default = false})
+
+        autodailywheep:OnChanged(
+            function()
+                if autodailywheep.Value then
+                    while autodailywheep.Value do
+                        local args = {
+                            [1] = "Daily",
+                            [2] = 1
+                        }
+
+                        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Wheel"):WaitForChild(
+                            "Spin"
+                        ):InvokeServer(unpack(args))
+                        task.wait(5)
+                    end
+                end
+            end
+        )
+
+        secmiscplayer:AddButton({
+            Title = "Claim All Codes",
+            Callback = function()
+                local codes = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/refs/heads/main/als/code"))()
+        
+                local claimCodeRemote = game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("ClaimCode")
+        
+                local function claimCodeSingle(code)
+                    local args = {[1] = code}
+                    local success, result = pcall(function()
+                        return claimCodeRemote:InvokeServer(unpack(args))
+                    end)
+        
+                    wait(0.5)
+                    return success, result
+                end
+        
+                -- Loop through all codes
+                for _, code in ipairs(codes) do
+                    claimCodeSingle(code)
+                end
+            end
+        })
+        
+    end
+
+    if Tabs.Autofarm then
+        local secstory = Tabs.Autofarm:AddSection("Story")
+
+        -- Get the Maps container
+        local mapsContainer = game:GetService("Players").LocalPlayer.PlayerGui.Story.BG.Content.Left.Maps
+
+        -- Get only TextButtons from the Maps container
+        local function getTextButtons()
+            local textButtons = {}
+            for _, child in pairs(mapsContainer:GetChildren()) do
+                if child:IsA("TextButton") then
+                    table.insert(textButtons, child.Text ~= "" and child.Text or child.Name)
+                end
+            end
+            return textButtons
+        end
+
+        -- Create the World dropdown
+        local dropselstory =
+            secstory:AddDropdown(
+            "dropsel",
+            {
+                Title = "World",
+                Values = getTextButtons(),
+                Multi = false,
+                Default = ""
+            }
+        )
+
+        -- Function to get Acts (show full text, extract number later)
+        local function getActs()
+            local actsContainer =
+                game:GetService("Players").LocalPlayer.PlayerGui.Story.BG.Content.Right.Acts.ScrollingFrame
+            local acts = {}
+
+            for _, child in pairs(actsContainer:GetChildren()) do
+                if child:IsA("TextButton") then
+                    local text = child.Text ~= "" and child.Text or child.Name
+                    table.insert(acts, text)
+                end
+            end
+
+            return acts
+        end
+
+        -- Create the Act dropdown
+        local dropselactact =
+            secstory:AddDropdown(
+            "dropselact",
+            {
+                Title = "Act",
+                Values = getActs(),
+                Multi = false,
+                Default = ""
+            }
+        )
+
+        -- Function to get Difficulties
+        local function getDifficulties()
+            local diffContainer =
+                game:GetService("Players").LocalPlayer.PlayerGui.Story.BG.Content.Right.Preview.Content.Top.Content.Difficulties
+            local difficulties = {}
+
+            for _, child in pairs(diffContainer:GetChildren()) do
+                if child:IsA("TextButton") then
+                    table.insert(difficulties, child.Text ~= "" and child.Text or child.Name)
+                end
+            end
+
+            return difficulties
+        end
+
+        -- Create the Difficulty dropdown
+        local dropseldifficulty =
+            secstory:AddDropdown(
+            "dropseldifficulty",
+            {
+                Title = "Difficulty",
+                Values = getDifficulties(),
+                Multi = false,
+                Default = ""
+            }
+        )
+
+        secstory:AddButton(
+            {
+                Title = "Start Story",
+                Callback = function()
+                    local player = game:GetService("Players").LocalPlayer
+                    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                    local door =
+                        workspace:WaitForChild("TeleporterFolder"):WaitForChild("Story"):WaitForChild("Teleporter"):WaitForChild(
+                        "Door"
+                    )
+
+                    if hrp and door then
+                        task.wait(.2)
+                        firetouchinterest(hrp, door, 0)
+                        task.wait(0.2)
+                        firetouchinterest(hrp, door, 1)
+
+                        -- Extract Act number from selected text
+                        local actText = dropselactact.Value
+                        local actNumber = tonumber(actText and actText:match("%d+")) or 1
+
+                        -- Build args
+                        local args = {
+                            [1] = tostring(dropselstory.Value),
+                            [2] = actNumber,
+                            [3] = tostring(dropseldifficulty.Value),
+                            [4] = false
+                        }
+
+                        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Story"):WaitForChild(
+                            "Select"
+                        ):InvokeServer(unpack(args))
+                        task.wait(0.3)
+
+                        -- Fire teleport interact
+                        local args2 = {
+                            [1] = "Skip"
+                        }
+
+                        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Teleporter"):WaitForChild(
+                            "Interact"
+                        ):FireServer(unpack(args2))
+                    end
+                end
+            }
+        )
+
+        local secraid = Tabs.Autofarm:AddSection("Raid")
+
+        -- Get the Raid Maps container
+        local function getRaidMaps()
+            local raidMapsContainer = game:GetService("Players").LocalPlayer.PlayerGui.Raids.BG.Content.Left.Maps
+
+            -- Get only TextButtons from the Maps container
+            local raidTextButtons = {}
+            for _, child in pairs(raidMapsContainer:GetChildren()) do
+                if child:IsA("TextButton") then
+                    table.insert(raidTextButtons, child.Text ~= "" and child.Text or child.Name)
+                end
+            end
+            return raidTextButtons
+        end
+
+        -- Create the Raid World dropdown
+        local dropselraid =
+            secraid:AddDropdown(
+            "dropselraid",
+            {
+                Title = "World",
+                Values = getRaidMaps(),
+                Multi = false,
+                Default = ""
+            }
+        )
+
+        -- Function to get Raid Acts
+        local function getRaidActs()
+            local raidActsContainer = game:GetService("Players").LocalPlayer.PlayerGui.Raids.BG.Content.Right.Acts
+            local raidActs = {}
+
+            for _, child in pairs(raidActsContainer:GetChildren()) do
+                if child:IsA("TextButton") then
+                    local text = child.Text ~= "" and child.Text or child.Name
+                    table.insert(raidActs, text)
+                end
+            end
+
+            return raidActs
+        end
+
+        -- Create the Raid Act dropdown
+        local dropselraidact =
+            secraid:AddDropdown(
+            "dropselraidact",
+            {
+                Title = "Act",
+                Values = getRaidActs(),
+                Multi = false,
+                Default = ""
+            }
+        )
+
+        -- For Raids difficulty, only "Nightmare" is available
+        local dropselraiddifficulty =
+            secraid:AddDropdown(
+            "dropselraiddifficulty",
+            {
+                Title = "Difficulty",
+                Values = {"Nightmare"},
+                Multi = false,
+                Default = "Nightmare"
+            }
+        )
+
+        dropselraid:OnChanged(
+            function(Value)
+                -- Empty function but keeping it as it was in your original code
+            end
+        )
+
+        -- Add the Start Raid button
+        secraid:AddButton(
+            {
+                Title = "Start Raid",
+                Callback = function()
+                    local player = game:GetService("Players").LocalPlayer
+                    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                    local door = workspace.TeleporterFolder.Raids.Teleporter.Door
+
+                    if hrp and door then
+                        task.wait(.2)
+                        firetouchinterest(hrp, door, 0)
+                        task.wait(0.2)
+                        firetouchinterest(hrp, door, 1)
+
+                        -- Extract Act number from selected text
+                        local actText = dropselraidact.Value
+                        local actNumber = tonumber(actText and actText:match("%d+")) or 1
+
+                        -- Build args
+                        local args = {
+                            [1] = tostring(dropselraid.Value),
+                            [2] = actNumber,
+                            [3] = tostring(dropselraiddifficulty.Value),
+                            [4] = false
+                        }
+
+                        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Raids"):WaitForChild(
+                            "Select"
+                        ):InvokeServer(unpack(args))
+                        task.wait(0.3)
+
+                        -- Fire teleport interact
+                        local args2 = {
+                            [1] = "Skip"
+                        }
+
+                        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Teleporter"):WaitForChild(
+                            "Interact"
+                        ):FireServer(unpack(args2))
+                    end
+                end
+            }
+        )
+
+        local secautosum = Tabs.Autofarm:AddSection("Summon")
+
+        -- Summon Dropdown with banner options
+        local dropsummon =
+            secautosum:AddDropdown(
+            "dropsummon",
+            {
+                Title = "Summon",
+                Values = {"Banner 1 (Mythic)", "Banner 2 (Celestial)", "Banner 3 (Ultimate)", "Banner 4 (Skin)"},
+                Multi = false,
+                Default = "" -- Set default to avoid nil errors
+            }
+        )
+
+        local slidsum =
+            secautosum:AddSlider(
+            "slidsum",
+            {
+                Title = "Number of summons",
+                Default = 1,
+                Min = 1,
+                Max = 10,
+                Rounding = 0
+            }
+        )
+
+        -- Create a variable to track our auto summon loop
+        local autoSummonLoop = nil
+
+        -- Add the toggle for auto summon
+        local sumtog = secautosum:AddToggle("sumtog", {Title = "Auto summon", Default = false})
+
+        sumtog:OnChanged(
+            function()
+                if sumtog.Value then
+                    while sumtog.Value do
+                        -- Check if toggle is still on
+                        if not sumtog.Value then
+                            break
+                        end
+
+                        -- Get the banner number from the dropdown selection
+                        local bannerNumber = 1 -- Default to 1 if there's an issue
+
+                        if dropsummon.Value and type(dropsummon.Value) == "string" then
+                            local numMatch = dropsummon.Value:match("Banner (%d+)")
+                            if numMatch then
+                                bannerNumber = tonumber(numMatch)
+                            end
+                        end
+
+                        -- Create arguments for the remote
+                        local args = {
+                            [1] = slidsum.Value or 1, -- Use slider value with fallback
+                            [2] = tostring(bannerNumber) -- Convert banner number to string
+                        }
+
+                        -- Call the remote with error handling
+                        local success, result =
+                            pcall(
+                            function()
+                                return game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild(
+                                    "Summon"
+                                ):InvokeServer(unpack(args))
+                            end
+                        )
+
+                        -- Wait 1 full second between summons to prevent throttling
+                        task.wait(1)
+                        -- Stop if toggle turned off
+                        if not sumtog.Value then
+                            break
+                        end
+                    end
+                else
+                    -- Cancel the loop when toggle is turned off
+                    if autoSummonLoop then
+                        pcall(function()task.cancel(autoSummonLoop)end)
+                        autoSummonLoop = nil
+                    end
+                end
+            end
+        )
+    end
+
+    if Tabs.Autofarm2 then
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local PlaceTower = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("PlaceTower")
+        local UpgradeRemote = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Upgrade")
+        local SellAllRemote = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("UnitManager"):WaitForChild("SellAll")
+        local gui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+        local root = gui.Bottom.Frame.Frame
+
+        local secSettings = Tabs.Autofarm2:AddSection("Settings")
+        local secAutofarm = Tabs.Autofarm2:AddSection("Autofarm")
+
+        local unitNames = {}
+        local manualUnitData = {}
+        local manualVisualizers = {}
+        local manualVisualizersEnabled = false
+        local visualizersEnabled = false
+        local autoSellEnabled = false
+        local unitDelay, upgradeDelay, spacing = 1, 1, 2
+        local sellDistance, sellCheckDelay = 30, 2
+        local visualizers = {}
+        local visualizerConnection = nil
+
+        -- Update Unit Names
+        local function updateUnitNames()
+            unitNames = {"All"}
+            for _, descendant in ipairs(root:GetDescendants()) do
+                if descendant:IsA("WorldModel") then
+                    for _, model in ipairs(descendant:GetChildren()) do
+                        if model:IsA("Model") then
+                            table.insert(unitNames, model.Name)
+                        end
+                    end
+                end
+            end
+        end
+
+        local function saveUnitData()
+            local dataToSave = HttpService:JSONEncode(manualUnitData)
+            writefile(unitDataFile, dataToSave)
+        end
+
+        local function loadUnitData()
+            if isfile(unitDataFile) then
+                local contents = readfile(unitDataFile)
+                if contents == "" then
+                    contents = "{}"
+                    writefile(unitDataFile, contents)
+                end
+                manualUnitData = HttpService:JSONDecode(contents)
+
+                for index, data in pairs(manualUnitData) do
+                    if data and data.position then
+                        data.position = Vector3.new(data.position.x, data.position.y, data.position.z)
+                    end
+                end
+            else
+                writefile(unitDataFile, "{}")
+                manualUnitData = {}
+            end
+        end
+
+        local function cleanupVisualizers()
+            if visualizerConnection then
+                visualizerConnection:Disconnect()
+                visualizerConnection = nil
+            end
+            for _, v in pairs(visualizers) do
+                if v then v:Destroy() end
+            end
+            table.clear(visualizers)
+        end
+
+        local function getClosestEnemyPositionAndOrientation()
+            local character = player and player.Character
+            local hrp = character and character:FindFirstChild("HumanoidRootPart")
+            if not hrp then return nil end
+
+            local closestEnemy, closestDistance = nil, math.huge
+            for _, enemy in ipairs(workspace.Enemies:GetChildren()) do
+                if enemy:IsA("Model") and enemy.PrimaryPart then
+                    local dist = (enemy.PrimaryPart.Position - hrp.Position).Magnitude
+                    if dist < closestDistance then
+                        closestEnemy, closestDistance = enemy, dist
+                    end
+                end
+            end
+            if closestEnemy then
+                return closestEnemy, closestEnemy.PrimaryPart.Position, closestEnemy.PrimaryPart.CFrame
+            end
+            return nil
+        end
+
+        local function calculatePosition(originPos, originCF, positionType, offset)
+            local directions = {
+                Front = originCF.LookVector,
+                Left = -originCF.RightVector,
+                Right = originCF.RightVector
+            }
+            local dir = directions[positionType] or Vector3.new()
+            local pos = originPos + (dir * offset)
+            return Vector3.new(pos.X, originPos.Y, pos.Z)
+        end
+
+        local function createManualVisualizer(index, position)
+            if manualVisualizers[index] then
+                manualVisualizers[index]:Destroy()
+            end
+
+            local visual = Instance.new("Part")
+            visual.Anchored = true
+            visual.CanCollide = false
+            visual.Size = Vector3.new(1, 1, 1)
+            visual.Shape = Enum.PartType.Ball
+            visual.Material = Enum.Material.Neon
+
+            local function getRandomBrightColor()
+                local r = math.random(150, 255)
+                local g = math.random(150, 255)
+                local b = math.random(150, 255)
+                return Color3.fromRGB(r, g, b)
+            end
+
+            visual.Color = getRandomBrightColor()
+            visual.Transparency = 0.25
+            visual.Position = position
+            visual.Name = "ManualVisual_" .. index
+            visual.Parent = workspace
+
+            local billboard = Instance.new("BillboardGui")
+            billboard.Adornee = visual
+            billboard.Size = UDim2.new(0, 100, 0, 50)
+            billboard.StudsOffset = Vector3.new(0, 2, 0)
+            billboard.AlwaysOnTop = true
+            billboard.Parent = visual
+
+            local label = Instance.new("TextLabel")
+            label.Size = UDim2.new(1, 0, 1, 0)
+            label.BackgroundTransparency = 1
+            label.TextColor3 = Color3.new(1, 1, 1)
+            label.TextStrokeTransparency = 0
+            label.Font = Enum.Font.SourceSansBold
+            label.TextScaled = true
+            label.Text = manualUnitData[index] and manualUnitData[index].unitName or "Unknown"
+            label.Parent = billboard
+
+            manualVisualizers[index] = visual
+        end
+
+        local function findGroundPosition(origin)
+            local rayParams = RaycastParams.new()
+            rayParams.FilterDescendantsInstances = {workspace:FindFirstChild("Ignore") or nil} -- Optional
+            rayParams.FilterType = Enum.RaycastFilterType.Blacklist
+            rayParams.IgnoreWater = true
+
+            local rayDirection = Vector3.new(0, -1000, 0)
+
+            local result = workspace:Raycast(origin, rayDirection, rayParams)
+
+            if result then
+                return result.Position
+            else
+                return origin - Vector3.new(0, 5, 0)
+            end
+        end
+
+        local function manualsetup()
+            local gui = player:WaitForChild("PlayerGui")
+            local bottom = gui:WaitForChild("Bottom")
+            local root = bottom:WaitForChild("Frame")
+
+            for _, frameContainer in ipairs(root:GetChildren()) do
+                if frameContainer:IsA("Frame") then
+                    for _, slotContainer in ipairs(frameContainer:GetChildren()) do
+                        if slotContainer:IsA("Frame") then
+                            for _, textButton in ipairs(slotContainer:GetChildren()) do
+                                if textButton:IsA("TextButton") then
+                                    local innerFrame = textButton:FindFirstChild("Frame")
+                                    if innerFrame then
+                                        local slotNumberLabel = innerFrame:FindFirstChild("SlotNumber")
+                                        local viewport = innerFrame:FindFirstChild("Viewport")
+
+                                        if slotNumberLabel and viewport and viewport:FindFirstChild("WorldModel") then
+                                            local unitModel = viewport.WorldModel:FindFirstChildWhichIsA("Model")
+
+                                            if unitModel then
+                                                for _, name in ipairs(unitNames) do
+                                                    if unitModel.Name == name then
+                                                        local slotNumberText = slotNumberLabel.Text
+
+                                                        secSettings:AddButton({
+                                                            Title = "Set Position for Slot " .. slotNumberText,
+                                                            Callback = function()
+                                                                if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                                                                    local hrp = player.Character.HumanoidRootPart
+                                                                    local pos = findGroundPosition(hrp.Position)
+
+                                                                    manualUnitData[slotNumberText] = {
+                                                                        position = pos,
+                                                                        unitName = unitModel.Name,
+                                                                        unitsToPlace = manualUnitData[slotNumberText] and manualUnitData[slotNumberText].unitsToPlace or 1
+                                                                    }
+
+                                                                    if manualVisualizersEnabled then
+                                                                        createManualVisualizer(slotNumberText, pos)
+                                                                    end
+
+                                                                    saveUnitData()
+                                                                end
+                                                            end
+                                                        })
+
+                                                        secSettings:AddSlider("Slider_Slot_" .. slotNumberText, {
+                                                            Title = "Units for Slot " .. slotNumberText,
+                                                            Min = 1,
+                                                            Max = 8,
+                                                            Default = manualUnitData[slotNumberText] and manualUnitData[slotNumberText].unitsToPlace or 1,
+                                                            Rounding = 1,
+                                                            Callback = function(Value)
+                                                                if not manualUnitData[slotNumberText] then
+                                                                    manualUnitData[slotNumberText] = {}
+                                                                end
+                                                                manualUnitData[slotNumberText].unitsToPlace = Value
+                                                                saveUnitData()
+                                                            end
+                                                        })
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+        local HttpService = game:GetService("HttpService")
+
+        local settingsFileName = "AutofarmSettings.json"
+        local autofarmSettings = {}
+        
+        local function loadfarmsettings()
+            if isfile(settingsFileName) then
+                local data = readfile(settingsFileName)
+                autofarmSettings = HttpService:JSONDecode(data)
+            else
+                autofarmSettings = {}
+            end
+        end
+        
+        local function savefarmsettings()
+            writefile(settingsFileName, HttpService:JSONEncode(autofarmSettings))
+        end
+        
+        loadfarmsettings()
+        
+        -- ============= TOGGLES =============
+        local manualPlacementEnabled = autofarmSettings.manualModeEnabled or false
+        local manualVisualizersEnabled = autofarmSettings.manualVisualizerEnabled or false
+        
+        local manualModeToggle = secSettings:AddToggle("manual_mode_toggle", {
+            Title = "Use Manual Placement Mode",
+            Default = manualPlacementEnabled
+        })
+        
+        manualModeToggle:OnChanged(function()
+            manualPlacementEnabled = manualModeToggle.Value
+            autofarmSettings.manualModeEnabled = manualPlacementEnabled
+            savefarmsettings()
+        end)
+        
+        local manualToggle = secSettings:AddToggle("manual_show", {
+            Title = "Show Manual Placements",
+            Default = manualVisualizersEnabled
+        })
+        
+        manualToggle:OnChanged(function()
+            manualVisualizersEnabled = manualToggle.Value
+            autofarmSettings.manualVisualizerEnabled = manualVisualizersEnabled
+            savefarmsettings()
+        
+            if not manualVisualizersEnabled then
+                for _, v in pairs(manualVisualizers) do
+                    if v then v:Destroy() end
+                end
+                manualVisualizers = {}
+            else
+                for i, data in pairs(manualUnitData) do
+                    createManualVisualizer(i, data.position)
+                end
+            end
+        end)
+        
+        local autoplaceEnabled = autofarmSettings.autoPlaceEnabled or false
+        
+        local autoplace = secAutofarm:AddToggle("autoplace_toggle", {
+            Title = "Auto Place Units",
+            Default = autoplaceEnabled
+        })
+        
+        autoplace:OnChanged(function()
+            autofarmSettings.autoPlaceEnabled = autoplace.Value
+            savefarmsettings()
+        
+            if autoplace.Value then
+                task.spawn(function()
+                    while autoplace.Value do
+                        if manualPlacementEnabled and next(manualUnitData) ~= nil then
+                            for slot, data in pairs(manualUnitData) do
+                                local pos = data.position
+                                local cframe = CFrame.new(pos)
+                                PlaceTower:FireServer(data.unitName, cframe)
+                                task.wait(unitDelay)
+                            end
+                        else
+                            local _, enemyPos, enemyCF = getClosestEnemyPositionAndOrientation()
+                            if enemyPos and enemyCF then
+                                local selectedPositions = {"Front", "Left", "Right"}
+                                for _, posType in ipairs(selectedPositions) do
+                                    local position = calculatePosition(enemyPos, enemyCF, posType, spacing)
+                                    local cframe = CFrame.new(position)
+        
+                                    for _, descendant in ipairs(root:GetDescendants()) do
+                                        if descendant:IsA("WorldModel") then
+                                            for _, model in ipairs(descendant:GetChildren()) do
+                                                if model:IsA("Model") then
+                                                    PlaceTower:FireServer(model.Name, cframe)
+                                                    task.wait(unitDelay)
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                            task.wait(0.1)
+                        end
+                    end
+                end)
+            end
+        end)
+        
+        local autoupgradeEnabled = autofarmSettings.autoUpgradeEnabled or false
+        
+        local autoup = secAutofarm:AddToggle("autoupgrade_toggle", {
+            Title = "Auto Upgrade Units",
+            Default = autoupgradeEnabled
+        })
+        
+        autoup:OnChanged(function()
+            autofarmSettings.autoUpgradeEnabled = autoup.Value
+            savefarmsettings()
+        
+            if autoup.Value then
+                task.spawn(function()
+                    while autoup.Value do
+                        task.wait(upgradeDelay)
+                        for _, tower in ipairs(workspace.Towers:GetChildren()) do
+                            if tower:IsA("Model") then
+                                UpgradeRemote:InvokeServer(tower)
+                            end
+                        end
+                    end
+                end)
+            end
+        end)        
+
+        updateUnitNames()
+        loadUnitData()
+        manualsetup()
+
+        -- Sell All Units Button
+        secAutofarm:AddButton(
+            {
+                Title = "Sell All Units",
+                Callback = function()
+                    SellAllRemote:FireServer()
+                end
+            }
+        )
+    end
+
+    Tabs.macro = Window:AddTab({Title = "Macro", Icon = "book"})
+    local UI = Tabs.macro
+
+    local Ply = game.Players.LocalPlayer
+    local Rep = game:GetService("ReplicatedStorage")
+    local Guis = Ply:WaitForChild("PlayerGui")
+
+    local folderRoot = "Karmapanda"
+    local alsFolder = folderRoot .. "/Als"
+    local macroFolder = alsFolder .. "/Macro"
+
+    local function createFolderStructure()
+        if isfolder and makefolder then
+            if not isfolder(folderRoot) then makefolder(folderRoot) end
+            if not isfolder(alsFolder) then makefolder(alsFolder) end
+            if not isfolder(macroFolder) then makefolder(macroFolder) end
+        end
+    end
+
+    local function Set_macro_file(data, filemacro_names)
+        local filePath = macroFolder .. '/' .. tostring(filemacro_names) .. ".json"
+        local suc = pcall(function()
+            createFolderStructure()
+            if writefile then
+                writefile(filePath, game:GetService("HttpService"):JSONEncode(data))
+            end
+        end)
+        return suc
+    end
+
+    local function Load_macro_file(filemacro_names)
+        local suc, res = pcall(function()
+            createFolderStructure()
+            return game:GetService("HttpService"):JSONDecode(readfile(macroFolder..'/'..tostring(filemacro_names)..".json"))
+        end)
+        if suc then
+            return res
+        else
+            return nil
+        end
+    end
+
+    local function Load_macro_list()
+        local suc, res = pcall(function()
+            createFolderStructure()
+            if listfiles then
+                return listfiles(macroFolder)
+            end
+        end)
+
+        if suc then
+            local filenames = {}
+            for _, v in pairs(res) do
+                local name = v:match("([^/\\]+)$")
+                local filepart = name:match("(.+)%..+$") or name
+                table.insert(filenames, filepart)
+            end
+            return filenames
+        else
+            return nil
+        end
+    end
+
+    local function Deletefile(filemacro)
+        local filePath = macroFolder .. '/' .. tostring(filemacro) .. ".json"
+        if isfile and isfile(filePath) then
+            delfile(filePath)
+            return true
+        else
+            return false
+        end
+    end
+
+    local macro_forsave = {}
+    local current_index = 1
+    local Isrecording = false
+    local cannext = true
+
+    createFolderStructure()
+
+    local All_macro = Load_macro_list() or {}
+    if not table.find(All_macro, "DefaultProfile") then
+        Set_macro_file({index = 0, Actions = {}, Map = "Unknown"}, "DefaultProfile")
+        All_macro = Load_macro_list() or {}
+    end
+
+    local Options = Fluent.Options
+
+    Options.Setting = Options.Setting or {
+        Play_macro = false,
+        Select_macro = "DefaultProfile",
+        Macro_action = {"Upgrade", "Target", "Sell", "Place", "Ability"}
+    }
+
+    UI:AddSection("Macro Management")
+    local Dropdown = UI:AddDropdown("macrotabs", {
+        Title = "Select Macro",
+        Values = All_macro,
+        Multi = false,
+        Default = "DefaultProfile"
+    })
+
+    UI:AddButton({
+        Title = "Refresh Macro List",
+        Callback = function()
+            local list = Load_macro_list() or {}
+            Dropdown:SetValues(list)
+            Fluent:Notify({
+                Title = "List Updated",
+                Content = #list.." macros found",
+                Duration = 2
+            })
+        end
+    })
+
+    UI:AddButton({
+        Title = "Delete Selected Macro",
+        Callback = function()
+            if Options.macrotabs.Value then
+                Deletefile(Options.macrotabs.Value)
+                local list = Load_macro_list() or {}
+                Dropdown:SetValues(list)
+                Fluent:Notify({
+                    Title = "Macro Deleted",
+                    Content = Options.macrotabs.Value.." deleted",
+                    Duration = 3
+                })
+            end
+        end
+    })
+
+    UI:AddSection("Create Macro")
+    local NewMacroInput = UI:AddInput("macrofilename_ins", {
+        Title = "New Macro Name",
+        Placeholder = "Enter new macro name...",
+        Default = "",
+        Numeric = false,
+        Finished = false,
+    })
+
+    UI:AddButton({
+        Title = "Create New Macro",
+        Callback = function()
+            local name = Options.macrofilename_ins.Value
+            if name == "" then
+                Fluent:Notify({
+                    Title = "Error",
+                    Content = "Please enter a macro name!",
+                    Duration = 3,
+                    Type = "error"
+                })
+                return
+            end
+            Set_macro_file({index = 0, Actions = {}, Map = "Unknown"}, name)
+            local list = Load_macro_list() or {}
+            Dropdown:SetValues(list)
+            Fluent:Notify({
+                Title = "Macro Created",
+                Content = name.." created successfully!",
+                Duration = 3
+            })
+        end
+    })
+
+    UI:AddSection("Recording Controls")
+    local Record_state = UI:AddParagraph({
+        Title = "Recording Status: 🔴",
+        Content = "Not currently recording"
+    })
+
+    UI:AddDropdown("macroaction_drops", {
+        Title = "Tracked Actions",
+        Values = {"Upgrade", "Target", "Sell", "Place", "Ability"},
+        Multi = true,
+        Default = {"Upgrade", "Target", "Sell", "Place", "Ability"},
+    })
+
+    local record_toggle = UI:AddToggle("recordings", {
+        Title = "Start/Stop Recording",
+        Default = false
+    })
+
+    record_toggle:OnChanged(function()
+        if Options.recordings.Value then
+            Window:Dialog({
+                Title = "Start New Recording?",
+                Content = "Starting a new recording will erase the current macro!\nAre you sure you want to continue?",
+                Buttons = {
+                    {
+                        Title = "Yes, Start Recording",
+                        Callback = function()
+                            Isrecording = true
+                            Record_state:SetTitle("Recording Status: 🟢\nRecording to: "..(Options.macrotabs.Value or "None"))
+                            macro_forsave[Options.macrotabs.Value] = {index = 0, Actions = {}, Map = "Unknown"}
+                        end
+                    },
+                    {
+                        Title = "Cancel",
+                        Callback = function()
+                            Isrecording = false
+                            Options.recordings:SetValue(false)
+                            Record_state:SetTitle("Recording Status: 🔴\nNot currently recording")
+                        end
+                    }
+                }
+            })
+        else
+            Isrecording = false
+            Record_state:SetTitle("Recording Status: 🔴\nRecording saved to: "..(Options.macrotabs.Value or "None"))
+            if macro_forsave[Options.macrotabs.Value] then
+                Set_macro_file(macro_forsave[Options.macrotabs.Value], Options.macrotabs.Value)
+            end
+        end
+    end)
+
+    UI:AddSection("Playback Controls")
+    local Plays_state = UI:AddParagraph({
+        Title = "Playback Status: 🔴",
+        Content = "Macro not running"
+    })
+
+    local play_macro = UI:AddToggle("play_macros", {
+        Title = "Enable Playback",
+        Default = false
+    })
+
+    play_macro:OnChanged(function()
+        Options.Setting.Play_macro = Options.play_macros.Value
+        if Options.Setting.Play_macro then
+            Plays_state:SetTitle("Playback Status: 🟢\nPlaying: "..(Options.macrotabs.Value or "None"))
+        else
+            Plays_state:SetTitle("Playback Status: 🔴\nPlayback stopped")
+        end
+    end)
+
+    local function Tower_add(player, index, waitForResult)
+        local towers = workspace:WaitForChild("Towers")
+        local Result = nil
+    
+        local connection
+        connection = towers.ChildAdded:Connect(function(tower)
+            task.spawn(function()
+                task.wait(0.5)
+                if tower:FindFirstChild("Owner") and tostring(tower.Owner.Value) == player.Name then
+                    if not tower:FindFirstChild("Unit_index") then
+                        local count = Instance.new("NumberValue")
+                        count.Name = "Unit_index"
+                        count.Value = index
+                        count.Parent = tower
+                        Result = tower
+                    end
+                end
+            end)
+            connection:Disconnect()
+        end)
+    
+        if waitForResult then
+            while not Result or not Result:FindFirstChild("Unit_index") do
+                task.wait()
+            end
+            return Result:FindFirstChild("Unit_index").Value
+        else
+            return true
+        end
+    end
+    
+    
+    local current_index = 1
+    local All_index = {}
+    task.spawn(function()
+        pcall(function()
+            while wait() do
+                if Options.Setting.Play_macro and Options.Setting.Select_macro then
+                    local Load_macro = Load_macro_file(Options.Setting.Select_macro)
+                    local Game_time = Rep:FindFirstChild("ElapsedTime").Value or 0
+                    local Money = Ply:FindFirstChild("Cash")
+                    local Wave = Rep:FindFirstChild("Wave")
+    
+                    if Guis:FindFirstChild("Bottom") then
+                        Guis.Bottom.Frame.Frame.Visible = false
+                    end
+    
+                    Wave:GetPropertyChangedSignal("Value"):Connect(function()
+                        if Wave.Value == 1 then
+                            current_index = 1
+                        end
+                    end)
+    
+                    if current_index <= (Load_macro and Load_macro.index or 0) then
+                        Plays_state:SetTitle("Macro is Playing: 🟢")
+    
+                        for _, v in ipairs(Load_macro.Actions) do
+                            if v.Data.index == current_index then
+                                if v.Data.Method then
+                                    local args = {}
+                                    for _, arg in pairs(v.Data.Args) do
+                                        if arg.Type == "string" then
+                                            table.insert(args, arg.Value)
+                                        elseif arg.Type == "CFrame" then
+                                            table.insert(args, CFrame.new(unpack(arg.Value)))
+                                        end
+                                    end
+    
+                                    local remote = Rep.Remotes:FindFirstChild(v.Data.action)
+                                    if remote then
+                                        if v.Data.action == "PlaceTower" then
+                                            local cost = Unit_Data[args[1]].TowerInfo[0]['Cost']
+                                            while Money.Value < cost do
+                                                task.wait()
+                                                cannext = false
+                                            end
+    
+                                            if Money.Value >= cost then
+                                                remote[v.Data.Method](remote, unpack(args))
+                                                Tower_add(Ply, v.Data.Unit_index, false)
+                                                task.wait(0.3)
+                                                cannext = true
+                                            end
+    
+                                        elseif v.Data.action == "Upgrade" then
+                                            for _, unit in ipairs(workspace.Towers:GetChildren()) do
+                                                local owner = unit:FindFirstChild("Owner")
+                                                if owner and tostring(owner.Value) == Ply.Name and unit:FindFirstChild("Unit_index") and unit.Unit_index.Value == v.Data.Unit_index then
+                                                    remote[v.Data.Method](remote, unit)
+                                                    cannext = true
+                                                end
+                                            end
+    
+                                        elseif v.Data.action == "ChangeTargeting" or v.Data.action == "Sell" then
+                                            for _, unit in ipairs(workspace.Towers:GetChildren()) do
+                                                local owner = unit:FindFirstChild("Owner")
+                                                if owner and tostring(owner.Value) == Ply.Name and unit:FindFirstChild("Unit_index") and unit.Unit_index.Value == v.Data.Unit_index then
+                                                    remote[v.Data.Method](remote, unit)
+                                                end
+                                            end
+    
+                                        elseif v.Data.action == "Ability" then
+                                            for _, unit in ipairs(workspace.Towers:GetChildren()) do
+                                                local owner = unit:FindFirstChild("Owner")
+                                                if owner and tostring(owner.Value) == Ply.Name and unit:FindFirstChild("Unit_index") and unit.Unit_index.Value == v.Data.Unit_index then
+                                                    remote[v.Data.Method](remote, unpack({unit, args[2]}))
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+    
+                        while not cannext do
+                            task.wait()
+                        end
+    
+                        current_index = current_index + 1
+                        task.wait(0.6)
+                    else
+                        current_index = 1
+                    end
+                end
+            end
+        end)
+    end)
+
+    coroutine.wrap(function()
+        local Action = {
+            ["Upgrade"] = "Upgrade",
+            ["Target"] = "ChangeTargeting",
+            ["Sell"] = "Sell",
+            ["Place"] = "PlaceTower",
+            ["Ability"] = "Ability",
+        }
+        
+        local OldNamecall
+        OldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
+            local method = getnamecallmethod()
+            local args = {...}
+    
+            if not checkcaller() and (method == "FireServer" or method == "InvokeServer") then
+                if Options.Setting.Select_macro and not workspace:FindFirstChild("Lobby") and Isrecording then
+                    for _, v in ipairs(Options.Setting.Macro_action) do
+                        if Action[v] and tostring(self) == Action[v] then
+                            local Game_time = Rep:FindFirstChild("ElapsedTime") or {Value = 0}
+                            local Wave = Rep:FindFirstChild("Wave") or {Value = 1}
+                            local Mapname = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("MapName")
+    
+                            if not macro_forsave[Options.Setting.Select_macro] then
+                                macro_forsave[Options.Setting.Select_macro] = {
+                                    index = 0,
+                                    Actions = {},
+                                    Map = Mapname and Mapname.Value or "Unknown"
+                                }
+                            end
+    
+                            macro_forsave[Options.Setting.Select_macro].index += 1
+    
+                            local Arguments = {}
+                            for _, arg in pairs(args) do
+                                if typeof(arg) == "CFrame" then
+                                    table.insert(Arguments, {Value = {arg:GetComponents()}, Type = "CFrame"})
+                                else
+                                    table.insert(Arguments, {Value = tostring(arg), Type = "string"})
+                                end
+                            end
+    
+                            local unit_index = nil
+                            if tostring(self) == "PlaceTower" then
+                                getgenv().Unit_index += 1
+                                unit_index = Tower_add(Ply, getgenv().Unit_index, true)
+                            else
+                                for _, unit in ipairs(workspace:FindFirstChild("Towers"):GetChildren()) do
+                                    local owner = unit:FindFirstChild("Owner")
+                                    if owner and tostring(owner.Value) == Ply.Name and unit == args[1] then
+                                        unit_index = unit:FindFirstChild("Unit_index") and unit.Unit_index.Value
+                                    end
+                                end
+                            end
+    
+                            table.insert(macro_forsave[Options.Setting.Select_macro].Actions, {
+                                Data = {
+                                    index = macro_forsave[Options.Setting.Select_macro].index,
+                                    action = tostring(self),
+                                    Args = Arguments,
+                                    Method = method,
+                                    Wave = Wave.Value,
+                                    Unit_index = unit_index
+                                },
+                                Time = Game_time.Value
+                            })
+    
+                            print("[Macro Recorded]: "..tostring(self))
+                        end
+                    end
+                end
+            end
+    
+            return OldNamecall(self, unpack(args))
+        end)
+    end)()    
+
+    local secCredits = Tabs.Credits
+    secCredits:AddSection("Credits")
+    secCredits:AddButton(
+        {
+            Title = "Copy Discord Server Link",
+            Description = "Karmapanda Hub Discord",
+            Callback = function()
+                setclipboard("https://discord.gg/BrnQQGKbvE")
+                Fluent:Notify(
+                    {
+                        Title = "Discord Server Link Copied",
+                        Content = "Discord Server Link has been copied to clipboard",
+                        Duration = 3
+                    }
+                )
+            end
+        }
+    )
+    -- ====== UI CONFIGURATION SECTION ======
+    SaveManager:SetLibrary(Fluent)
+    InterfaceManager:SetLibrary(Fluent)
+    SaveManager:IgnoreThemeSettings()
+    SaveManager:SetFolder("Karmapanda/ALS")
+
+    SaveManager:SetIgnoreIndexes({})
+    InterfaceManager:SetFolder("Fluent")
+    Window:SelectTab(1)
+    InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+    SaveManager:BuildConfigSection(Tabs.Settings)
+
+    local function CreateHideButtonGUI()
+        loadstring(game:HttpGet(
+                       'https://raw.githubusercontent.com/Jeikaru/Roblox/main/HideGui'))()
+    end
+
+    CreateHideButtonGUI()
+    Fluent:Notify(
+        {
+            Title = "Interface",
+            Content = "The script has been loaded.",
+            Duration = 8
+        }
+    )
+    SaveManager:LoadAutoloadConfig()
 end
