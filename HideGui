@@ -247,7 +247,7 @@ if not game:GetService("CoreGui"):FindFirstChild("Jeikaru") then
 	UICorner_3.Parent = IconButton_3;
 	IconButton_3.MouseButton1Down:Connect(function()
 	local vim = game:GetService("VirtualInputManager")
-	vim:SendKeyEvent(true, "LeftControl", false, game)
+	vim:SendKeyEvent(true, "Home", false, game)
     end);
 	RainbowText(IconLabel_3);
 	RainbowImage(IconImage);
