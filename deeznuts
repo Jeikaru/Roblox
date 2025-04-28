@@ -9,7 +9,7 @@ local InterfaceManager =
     loadstring(
     game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua")
 )()
-local Version = "Beta 0.1"
+local Version = "Version 1"
 local Options = Fluent.Options
 
 if _G.Interface == nil then
