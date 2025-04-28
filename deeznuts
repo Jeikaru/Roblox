@@ -1335,13 +1335,6 @@ if _G.Interface == nil then
     Window:SelectTab(1)
     InterfaceManager:BuildInterfaceSection(Tabs.Settings)
     SaveManager:BuildConfigSection(Tabs.Settings)
-
-    local function CreateHideButtonGUI()
-        loadstring(game:HttpGet(
-                       'https://raw.githubusercontent.com/Jeikaru/Roblox/main/HideGui'))()
-    end
-
-    CreateHideButtonGUI()
     Fluent:Notify(
         {
             Title = "Interface",
