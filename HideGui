@@ -246,8 +246,9 @@ if not game:GetService("CoreGui"):FindFirstChild("Jeikaru") then
 	IconLabel_3.TextXAlignment = Enum.TextXAlignment.Left;
 	UICorner_3.Parent = IconButton_3;
 	IconButton_3.MouseButton1Down:Connect(function()
-        game:GetService("VirtualInputManager"):SendKeyEvent(true, "LeftControl", false,
-                                                            game)
+	local vim = game:GetService("VirtualInputManager")
+	vim:SendKeyEvent(true, "Home", false, game)
+	vim:SendKeyEvent(true, "LeftControl", false, game)
     end);
 	RainbowText(IconLabel_3);
 	RainbowImage(IconImage);
