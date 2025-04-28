@@ -1,4 +1,3 @@
---loadstring(game:HttpGet("https://pastes.io/raw/animelaststandscript"))()
 
 local player = game.Players.LocalPlayer
 local HttpService = game:GetService("HttpService")
@@ -11,6 +10,7 @@ local InterfaceManager =
     loadstring(
     game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua")
 )()
+
 local Version = "Beta 0.1"
 local Options = Fluent.Options
 
@@ -21,7 +21,7 @@ if _G.Interface == nil then
         {
             Title = "Loading interface...",
             Content = "Interface is loading, please wait.",
-            Duration = 5 -- Set to nil to make the notification not disappear
+            Duration = 1
         }
     )
 
@@ -31,7 +31,7 @@ if _G.Interface == nil then
             Title = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name .. " | " .. Version,
             SubTitle = "Made By Dev-Jay From Karmapanda",
             TabWidth = 100,
-            Size = UDim2.fromOffset(550, 400),
+            Size = UDim2.fromOffset(400, 400),
             Acrylic = false,
             Theme = "Darker",
             Transparency = "false",
@@ -62,7 +62,6 @@ if _G.Interface == nil then
     end
 
     Tabs.Credits = Window:AddTab({Title = "Credits", Icon = "book"})
-    Tabs.Settings = Window:AddTab({Title = "Settings", Icon = "settings"})
 
     if Tabs.Autofarm then
         local secmiscplayer = Tabs.Player:AddSection("Misc")
@@ -1034,7 +1033,6 @@ if _G.Interface == nil then
     UI:AddSection("Recording Controls")
     local Record_state = UI:AddParagraph({
         Title = "Recording Status: 🔴",
-        Content = "Not currently recording"
     })
 
     UI:AddDropdown("macroaction_drops", {
@@ -1333,8 +1331,13 @@ if _G.Interface == nil then
     SaveManager:SetIgnoreIndexes({})
     InterfaceManager:SetFolder("Fluent")
     Window:SelectTab(1)
-    InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-    SaveManager:BuildConfigSection(Tabs.Settings)
+
+    local function CreateHideButtonGUI()
+        loadstring(game:HttpGet(
+                       'https://raw.githubusercontent.com/Jeikaru/Roblox/main/HideGui'))()
+    end
+
+    CreateHideButtonGUI()
     Fluent:Notify(
         {
             Title = "Interface",
