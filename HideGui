@@ -290,5 +290,3 @@ if not game:GetService("CoreGui"):FindFirstChild("Jeikaru") then
 		end);
 	end);
 end
-wait(10)
-game:GetService("VirtualInputManager"):SendKeyEvent(true, "LeftControl", false,game)
