@@ -366,19 +366,19 @@ function startautofarm()
         warn("Autofarm started")
         while autoFarmRunning do
             local char = lp.Character
-            if not char then warn("No character found") task.wait() continue end
+            if not char then warn("No character found") task.wait() return end
 
             local tool = char:FindFirstChildOfClass("Tool")
-            if not tool then warn("No tool found") task.wait() continue end
+            if not tool then warn("No tool found") task.wait() return end
 
             local handle = tool:FindFirstChild("Handle")
-            if not handle then warn("Tool has no Handle") task.wait() continue end
+            if not handle then warn("Tool has no Handle") task.wait() return end
 
             local barrel = handle:FindFirstChild("Barrel")
-            if not barrel then warn("Handle has no Barrel") task.wait() continue end
+            if not barrel then warn("Handle has no Barrel") task.wait() return end
 
             local target, isBoss = getTargetEnemy()
-            if not target then warn("No enemy target found") task.wait() continue end
+            if not target then warn("No enemy target found") task.wait() return end
 
             if ammo.Min <= 0 then
                 warn("No ammo, reloading...")
@@ -401,19 +401,19 @@ function autoFarmLoop()
         warn("Risk Autofarm started")
         while autoFarmLoopRunning do
             local char = lp.Character
-            if not char then warn("No character found (risk mode)") task.wait() continue end
+            if not char then warn("No character found (risk mode)") task.wait() return end
 
             local tool = char:FindFirstChildOfClass("Tool")
-            if not tool then warn("No tool found (risk mode)") task.wait() continue end
+            if not tool then warn("No tool found (risk mode)") task.wait() return end
 
             local handle = tool:FindFirstChild("Handle")
-            if not handle then warn("Tool has no Handle (risk mode)") task.wait() continue end
+            if not handle then warn("Tool has no Handle (risk mode)") task.wait() return end
 
             local barrel = handle:FindFirstChild("Barrel")
-            if not barrel then warn("Handle has no Barrel (risk mode)") task.wait() continue end
+            if not barrel then warn("Handle has no Barrel (risk mode)") task.wait() return end
 
             local target, isBoss = getTargetEnemy()
-            if not target then warn("No enemy target found (risk mode)") task.wait() continue end
+            if not target then warn("No enemy target found (risk mode)") task.wait() return end
 
             if ammo.Min <= 0 then
                 warn("No ammo, reloading... (risk mode)")
@@ -429,7 +429,6 @@ function autoFarmLoop()
     end)
     coroutine.resume(autoFarmLoopThread)
 end
-
 
 -- local functions and stuff ends
 
