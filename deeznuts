@@ -1,1349 +1,852 @@
-
-local player = game.Players.LocalPlayer
-local HttpService = game:GetService("HttpService")
-local unitDataFile = "UnitAutoPlace.json"
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager =
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager =
-    loadstring(
-    game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua")
-)()
 
-local Version = "Beta 0.1"
+-- Var
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local workspace = game:GetService("Workspace")
+local player = game:GetService("Players").LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local backpack = player:WaitForChild("Backpack")
+local choosengun = nil
+local autoFarmRunning = false
+local autoFarmThread = nil
+
+local version = 3
+local Window =
+    Fluent:CreateWindow(
+    {
+        Title = "Karmapanda's The Red Lake Script: " .. version,
+        SubTitle = "by Dev-Jay",
+        TabWidth = 160,
+        Size = UDim2.fromOffset(580, 460),
+        Acrylic = true,
+        Theme = "Dark",
+        MinimizeKey = Enum.KeyCode.Home
+    }
+)
 local Options = Fluent.Options
 
-if _G.Interface == nil then
-    _G.Interface = true
-    
+local tabs = {}
+tabs.main = Window:AddTab({Title = "Main"})
+tabs.classic = Window:AddTab({Title = "Classic"})
+
+-- local functions and stuff
+-- main functions
+
+-- auto ammo
+spawn(
+    function()
+        local lastAmmoNotification = 0
+        while true do
+            wait(1)
+            pcall(
+                function()
+                    local tool = player.Character and player.Character:FindFirstChildOfClass("Tool")
+                    if tool and tool:GetAttribute("TotalAmmo") and tool:GetAttribute("TotalAmmo") < 1 then
+                        local closestAmmoBox, shortestDistance = nil, math.huge
+                        local ammoSources = {
+                            workspace.Maps.Forest.Interactable.AmmoBoxes,
+                            workspace.Maps["Shadow War"].Interactable.AmmoBoxes,
+                            workspace.Maps.Extraction.Interactable.AmmoBoxes,
+                            workspace.Maps.Classic.Interactable.AmmoBoxes,
+                            workspace.Maps["Chaos Facility"].Interactable.AmmoBoxes,
+                            workspace.Maps.Forest.Interactable.Temp["Ammo Box"],
+                            workspace.Maps.Classic.Interactable.Temp["Ammo Box"],
+                            workspace.Maps.Extraction.Interactable.Temp["Ammo Box"],
+                            workspace.Maps["Chaos Facility"].Interactable.Temp["Ammo Box"],
+                            workspace.permObjects:GetChildren()[5],
+                            workspace.permObjects:GetChildren()[4],
+                            workspace.permObjects:GetChildren()[3],
+                            workspace.permObjects:GetChildren()[2],
+                            workspace.permObjects:GetChildren()[1],
+                            workspace.permObjects:GetChildren()[6]
+                        }
+
+                        for _, source in pairs(ammoSources) do
+                            if source then
+                                for _, v in pairs(source:GetDescendants()) do
+                                    if v:IsA("ProximityPrompt") then
+                                        local distance =
+                                            (player.Character.HumanoidRootPart.Position - v.Parent.Position).Magnitude
+                                        if distance < shortestDistance then
+                                            closestAmmoBox, shortestDistance = v, distance
+                                        end
+                                    end
+                                end
+                            end
+                        end
+
+                        if closestAmmoBox then
+                            if shortestDistance > 5 then
+                                if tick() - lastAmmoNotification > 5 then
+                                    lastAmmoNotification = tick()
+                                    local remotes = game:GetService("ReplicatedStorage"):WaitForChild("Remotes")
+                                    local popupClient = remotes:WaitForChild("PopupClient")
+                                    popupClient:Fire(
+                                        "How to Use Auto Refill Ammo",
+                                        '<font color="rgb(85, 255, 0)">Go Near to the AmmoBox</font>'
+                                    )
+                                end
+                            else
+                                closestAmmoBox.HoldDuration = 0
+                                repeat
+                                    fireproximityprompt(closestAmmoBox)
+                                    wait()
+                                until tool:GetAttribute("TotalAmmo") > 1
+                            end
+                        end
+                    end
+                end
+            )
+        end
+    end
+)
+
+local abilityData =
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/main/scripts/scptrl/Ability.lua"))()
+
+local abilityGui, manaLabel, mainFrame
+
+local function GetAbilityGui()
+    for _, gui in ipairs(playerGui:GetChildren()) do
+        if gui:IsA("ScreenGui") and gui.Name:match("^Ability") then
+            abilityGui = gui
+            manaLabel = gui:WaitForChild("Bottom", 5):WaitForChild("Mana", 5):WaitForChild("TextLabel", 5)
+            mainFrame = gui:WaitForChild("Main", 5)
+
+            if manaLabel and mainFrame then
+                return true
+            end
+        end
+    end
+    abilityGui = nil
+    manaLabel = nil
+    mainFrame = nil
+    return false
+end
+
+GetAbilityGui()
+
+if not abilityGui then
+    warn("No Ability GUI found!")
     Fluent:Notify(
         {
-            Title = "Loading interface...",
-            Content = "Interface is loading, please wait.",
-            Duration = 1
+            Title = "Ability GUI Not Found",
+            Content = "Auto Ability features will be disabled",
+            Duration = 8,
+            Type = "warning"
         }
     )
-
-    local Window =
-        Fluent:CreateWindow(
-        {
-            Title = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name .. " | " .. Version,
-            SubTitle = "Made By Dev-Jay From Karmapanda",
-            TabWidth = 100,
-            Size = UDim2.fromOffset(400, 400),
-            Acrylic = false,
-            Theme = "Darker",
-            Transparency = "false",
-            MinimizeKey = Enum.KeyCode.Home
-        }
-    )
-
-    local player = game:GetService("Players").LocalPlayer
-    local gui = player:WaitForChild("PlayerGui")
-    local Tabs = {}
-
-    Tabs.Player = Window:AddTab({Title = "Player", Icon = "user"})
-
-    if gui:FindFirstChild("Story") or gui:WaitForChild("Story", 5) then
-        Tabs.Autofarm = Window:AddTab({Title = "Autofarm", Icon = "repeat"})
-    end
-
-    -- Only show Autofarm2 if WorldModel exists inside Bottom.Frame.Frame
-    local root = gui:FindFirstChild("Bottom") and gui.Bottom:FindFirstChild("Frame") and gui.Bottom.Frame:FindFirstChild("Frame")
-
-    if root then
-        for _, desc in ipairs(root:GetDescendants()) do
-            if desc:IsA("WorldModel") then
-                Tabs.Autofarm2 = Window:AddTab({Title = "Autofarm", Icon = "repeat"})
-                break
-            end
-        end
-    end
-
-    Tabs.Credits = Window:AddTab({Title = "Credits", Icon = "book"})
-
-    if Tabs.Autofarm then
-        local secmiscplayer = Tabs.Player:AddSection("Misc")
-
-        local autoclaimrew =
-            secmiscplayer:AddToggle("autoclaimrew", {Title = "Auto claim level rewards", Default = false})
-
-        autoclaimrew:OnChanged(
-            function()
-                if autoclaimrew.Value then
-                    while autoclaimrew.Value do
-                        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("LevelRewardsEvent"):FireServer(
-
-                        )
-                        task.wait(5)
-                    end
-                end
-            end
-        )
-
-        local autoclaimpass =
-            secmiscplayer:AddToggle("autoclaimpass", {Title = "Auto claim pass rewards", Default = false})
-
-        autoclaimpass:OnChanged(
-            function()
-                if autoclaimpass.Value then
-                    while autoclaimpass.Value do
-                        local args = {
-                            [1] = "All"
-                        }
-
-                        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("ClaimBattlePass"):FireServer(
-                            unpack(args)
-                        )
-                        task.wait(5)
-                    end
-                end
-            end
-        )
-
-        local autodailywheep =
-            secmiscplayer:AddToggle("autodailywheep", {Title = "Auto spin daily wheel", Default = false})
-
-        autodailywheep:OnChanged(
-            function()
-                if autodailywheep.Value then
-                    while autodailywheep.Value do
-                        local args = {
-                            [1] = "Daily",
-                            [2] = 1
-                        }
-
-                        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Wheel"):WaitForChild(
-                            "Spin"
-                        ):InvokeServer(unpack(args))
-                        task.wait(5)
-                    end
-                end
-            end
-        )
-
-        secmiscplayer:AddButton({
-            Title = "Claim All Codes",
-            Callback = function()
-                local codes = loadstring(game:HttpGet("https://raw.githubusercontent.com/None7464/testss/refs/heads/main/als/code"))()
-        
-                local claimCodeRemote = game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("ClaimCode")
-        
-                local function claimCodeSingle(code)
-                    local args = {[1] = code}
-                    local success, result = pcall(function()
-                        return claimCodeRemote:InvokeServer(unpack(args))
-                    end)
-        
-                    wait(0.5)
-                    return success, result
-                end
-        
-                -- Loop through all codes
-                for _, code in ipairs(codes) do
-                    claimCodeSingle(code)
-                end
-            end
-        })
-        
-    end
-
-    if Tabs.Autofarm then
-        local secstory = Tabs.Autofarm:AddSection("Story")
-
-        -- Get the Maps container
-        local mapsContainer = game:GetService("Players").LocalPlayer.PlayerGui.Story.BG.Content.Left.Maps
-
-        -- Get only TextButtons from the Maps container
-        local function getTextButtons()
-            local textButtons = {}
-            for _, child in pairs(mapsContainer:GetChildren()) do
-                if child:IsA("TextButton") then
-                    table.insert(textButtons, child.Text ~= "" and child.Text or child.Name)
-                end
-            end
-            return textButtons
-        end
-
-        -- Create the World dropdown
-        local dropselstory =
-            secstory:AddDropdown(
-            "dropsel",
-            {
-                Title = "World",
-                Values = getTextButtons(),
-                Multi = false,
-                Default = ""
-            }
-        )
-
-        -- Function to get Acts (show full text, extract number later)
-        local function getActs()
-            local actsContainer =
-                game:GetService("Players").LocalPlayer.PlayerGui.Story.BG.Content.Right.Acts.ScrollingFrame
-            local acts = {}
-
-            for _, child in pairs(actsContainer:GetChildren()) do
-                if child:IsA("TextButton") then
-                    local text = child.Text ~= "" and child.Text or child.Name
-                    table.insert(acts, text)
-                end
-            end
-
-            return acts
-        end
-
-        -- Create the Act dropdown
-        local dropselactact =
-            secstory:AddDropdown(
-            "dropselact",
-            {
-                Title = "Act",
-                Values = getActs(),
-                Multi = false,
-                Default = ""
-            }
-        )
-
-        -- Function to get Difficulties
-        local function getDifficulties()
-            local diffContainer =
-                game:GetService("Players").LocalPlayer.PlayerGui.Story.BG.Content.Right.Preview.Content.Top.Content.Difficulties
-            local difficulties = {}
-
-            for _, child in pairs(diffContainer:GetChildren()) do
-                if child:IsA("TextButton") then
-                    table.insert(difficulties, child.Text ~= "" and child.Text or child.Name)
-                end
-            end
-
-            return difficulties
-        end
-
-        -- Create the Difficulty dropdown
-        local dropseldifficulty =
-            secstory:AddDropdown(
-            "dropseldifficulty",
-            {
-                Title = "Difficulty",
-                Values = getDifficulties(),
-                Multi = false,
-                Default = ""
-            }
-        )
-
-        secstory:AddButton(
-            {
-                Title = "Start Story",
-                Callback = function()
-                    local player = game:GetService("Players").LocalPlayer
-                    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-                    local door =
-                        workspace:WaitForChild("TeleporterFolder"):WaitForChild("Story"):WaitForChild("Teleporter"):WaitForChild(
-                        "Door"
-                    )
-
-                    if hrp and door then
-                        task.wait(.2)
-                        firetouchinterest(hrp, door, 0)
-                        task.wait(0.2)
-                        firetouchinterest(hrp, door, 1)
-
-                        -- Extract Act number from selected text
-                        local actText = dropselactact.Value
-                        local actNumber = tonumber(actText and actText:match("%d+")) or 1
-
-                        -- Build args
-                        local args = {
-                            [1] = tostring(dropselstory.Value),
-                            [2] = actNumber,
-                            [3] = tostring(dropseldifficulty.Value),
-                            [4] = false
-                        }
-
-                        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Story"):WaitForChild(
-                            "Select"
-                        ):InvokeServer(unpack(args))
-                        task.wait(0.3)
-
-                        -- Fire teleport interact
-                        local args2 = {
-                            [1] = "Skip"
-                        }
-
-                        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Teleporter"):WaitForChild(
-                            "Interact"
-                        ):FireServer(unpack(args2))
-                    end
-                end
-            }
-        )
-
-        local secraid = Tabs.Autofarm:AddSection("Raid")
-
-        -- Get the Raid Maps container
-        local function getRaidMaps()
-            local raidMapsContainer = game:GetService("Players").LocalPlayer.PlayerGui.Raids.BG.Content.Left.Maps
-
-            -- Get only TextButtons from the Maps container
-            local raidTextButtons = {}
-            for _, child in pairs(raidMapsContainer:GetChildren()) do
-                if child:IsA("TextButton") then
-                    table.insert(raidTextButtons, child.Text ~= "" and child.Text or child.Name)
-                end
-            end
-            return raidTextButtons
-        end
-
-        -- Create the Raid World dropdown
-        local dropselraid =
-            secraid:AddDropdown(
-            "dropselraid",
-            {
-                Title = "World",
-                Values = getRaidMaps(),
-                Multi = false,
-                Default = ""
-            }
-        )
-
-        -- Function to get Raid Acts
-        local function getRaidActs()
-            local raidActsContainer = game:GetService("Players").LocalPlayer.PlayerGui.Raids.BG.Content.Right.Acts
-            local raidActs = {}
-
-            for _, child in pairs(raidActsContainer:GetChildren()) do
-                if child:IsA("TextButton") then
-                    local text = child.Text ~= "" and child.Text or child.Name
-                    table.insert(raidActs, text)
-                end
-            end
-
-            return raidActs
-        end
-
-        -- Create the Raid Act dropdown
-        local dropselraidact =
-            secraid:AddDropdown(
-            "dropselraidact",
-            {
-                Title = "Act",
-                Values = getRaidActs(),
-                Multi = false,
-                Default = ""
-            }
-        )
-
-        -- For Raids difficulty, only "Nightmare" is available
-        local dropselraiddifficulty =
-            secraid:AddDropdown(
-            "dropselraiddifficulty",
-            {
-                Title = "Difficulty",
-                Values = {"Nightmare"},
-                Multi = false,
-                Default = "Nightmare"
-            }
-        )
-
-        dropselraid:OnChanged(
-            function(Value)
-                -- Empty function but keeping it as it was in your original code
-            end
-        )
-
-        -- Add the Start Raid button
-        secraid:AddButton(
-            {
-                Title = "Start Raid",
-                Callback = function()
-                    local player = game:GetService("Players").LocalPlayer
-                    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-                    local door = workspace.TeleporterFolder.Raids.Teleporter.Door
-
-                    if hrp and door then
-                        task.wait(.2)
-                        firetouchinterest(hrp, door, 0)
-                        task.wait(0.2)
-                        firetouchinterest(hrp, door, 1)
-
-                        -- Extract Act number from selected text
-                        local actText = dropselraidact.Value
-                        local actNumber = tonumber(actText and actText:match("%d+")) or 1
-
-                        -- Build args
-                        local args = {
-                            [1] = tostring(dropselraid.Value),
-                            [2] = actNumber,
-                            [3] = tostring(dropselraiddifficulty.Value),
-                            [4] = false
-                        }
-
-                        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Raids"):WaitForChild(
-                            "Select"
-                        ):InvokeServer(unpack(args))
-                        task.wait(0.3)
-
-                        -- Fire teleport interact
-                        local args2 = {
-                            [1] = "Skip"
-                        }
-
-                        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Teleporter"):WaitForChild(
-                            "Interact"
-                        ):FireServer(unpack(args2))
-                    end
-                end
-            }
-        )
-
-        local secautosum = Tabs.Autofarm:AddSection("Summon")
-
-        -- Summon Dropdown with banner options
-        local dropsummon =
-            secautosum:AddDropdown(
-            "dropsummon",
-            {
-                Title = "Summon",
-                Values = {"Banner 1 (Mythic)", "Banner 2 (Celestial)", "Banner 3 (Ultimate)", "Banner 4 (Skin)"},
-                Multi = false,
-                Default = "" -- Set default to avoid nil errors
-            }
-        )
-
-        local slidsum =
-            secautosum:AddSlider(
-            "slidsum",
-            {
-                Title = "Number of summons",
-                Default = 1,
-                Min = 1,
-                Max = 10,
-                Rounding = 0
-            }
-        )
-
-        -- Create a variable to track our auto summon loop
-        local autoSummonLoop = nil
-
-        -- Add the toggle for auto summon
-        local sumtog = secautosum:AddToggle("sumtog", {Title = "Auto summon", Default = false})
-
-        sumtog:OnChanged(
-            function()
-                if sumtog.Value then
-                    while sumtog.Value do
-                        -- Check if toggle is still on
-                        if not sumtog.Value then
-                            break
-                        end
-
-                        -- Get the banner number from the dropdown selection
-                        local bannerNumber = 1 -- Default to 1 if there's an issue
-
-                        if dropsummon.Value and type(dropsummon.Value) == "string" then
-                            local numMatch = dropsummon.Value:match("Banner (%d+)")
-                            if numMatch then
-                                bannerNumber = tonumber(numMatch)
-                            end
-                        end
-
-                        -- Create arguments for the remote
-                        local args = {
-                            [1] = slidsum.Value or 1, -- Use slider value with fallback
-                            [2] = tostring(bannerNumber) -- Convert banner number to string
-                        }
-
-                        -- Call the remote with error handling
-                        local success, result =
-                            pcall(
-                            function()
-                                return game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild(
-                                    "Summon"
-                                ):InvokeServer(unpack(args))
-                            end
-                        )
-
-                        -- Wait 1 full second between summons to prevent throttling
-                        task.wait(1)
-                        -- Stop if toggle turned off
-                        if not sumtog.Value then
-                            break
-                        end
-                    end
-                else
-                    -- Cancel the loop when toggle is turned off
-                    if autoSummonLoop then
-                        pcall(function()task.cancel(autoSummonLoop)end)
-                        autoSummonLoop = nil
-                    end
-                end
-            end
-        )
-    end
-
-    if Tabs.Autofarm2 then
-        local ReplicatedStorage = game:GetService("ReplicatedStorage")
-        local PlaceTower = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("PlaceTower")
-        local UpgradeRemote = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Upgrade")
-        local SellAllRemote = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("UnitManager"):WaitForChild("SellAll")
-        local gui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
-        local root = gui.Bottom.Frame.Frame
-
-        local secSettings = Tabs.Autofarm2:AddSection("Settings")
-        local secAutofarm = Tabs.Autofarm2:AddSection("Autofarm")
-
-        local unitNames = {}
-        local manualUnitData = {}
-        local manualVisualizers = {}
-        local manualVisualizersEnabled = false
-        local visualizersEnabled = false
-        local autoSellEnabled = false
-        local unitDelay, upgradeDelay, spacing = 1, 1, 2
-        local sellDistance, sellCheckDelay = 30, 2
-        local visualizers = {}
-        local visualizerConnection = nil
-
-        -- Update Unit Names
-        local function updateUnitNames()
-            unitNames = {"All"}
-            for _, descendant in ipairs(root:GetDescendants()) do
-                if descendant:IsA("WorldModel") then
-                    for _, model in ipairs(descendant:GetChildren()) do
-                        if model:IsA("Model") then
-                            table.insert(unitNames, model.Name)
-                        end
-                    end
-                end
-            end
-        end
-
-        local function saveUnitData()
-            local dataToSave = HttpService:JSONEncode(manualUnitData)
-            writefile(unitDataFile, dataToSave)
-        end
-
-        local function loadUnitData()
-            if isfile(unitDataFile) then
-                local contents = readfile(unitDataFile)
-                if contents == "" then
-                    contents = "{}"
-                    writefile(unitDataFile, contents)
-                end
-                manualUnitData = HttpService:JSONDecode(contents)
-
-                for index, data in pairs(manualUnitData) do
-                    if data and data.position then
-                        data.position = Vector3.new(data.position.x, data.position.y, data.position.z)
-                    end
-                end
-            else
-                writefile(unitDataFile, "{}")
-                manualUnitData = {}
-            end
-        end
-
-        local function cleanupVisualizers()
-            if visualizerConnection then
-                visualizerConnection:Disconnect()
-                visualizerConnection = nil
-            end
-            for _, v in pairs(visualizers) do
-                if v then v:Destroy() end
-            end
-            table.clear(visualizers)
-        end
-
-        local function getClosestEnemyPositionAndOrientation()
-            local character = player and player.Character
-            local hrp = character and character:FindFirstChild("HumanoidRootPart")
-            if not hrp then return nil end
-
-            local closestEnemy, closestDistance = nil, math.huge
-            for _, enemy in ipairs(workspace.Enemies:GetChildren()) do
-                if enemy:IsA("Model") and enemy.PrimaryPart then
-                    local dist = (enemy.PrimaryPart.Position - hrp.Position).Magnitude
-                    if dist < closestDistance then
-                        closestEnemy, closestDistance = enemy, dist
-                    end
-                end
-            end
-            if closestEnemy then
-                return closestEnemy, closestEnemy.PrimaryPart.Position, closestEnemy.PrimaryPart.CFrame
-            end
-            return nil
-        end
-
-        local function calculatePosition(originPos, originCF, positionType, offset)
-            local directions = {
-                Front = originCF.LookVector,
-                Left = -originCF.RightVector,
-                Right = originCF.RightVector
-            }
-            local dir = directions[positionType] or Vector3.new()
-            local pos = originPos + (dir * offset)
-            return Vector3.new(pos.X, originPos.Y, pos.Z)
-        end
-
-        local function createManualVisualizer(index, position)
-            if manualVisualizers[index] then
-                manualVisualizers[index]:Destroy()
-            end
-
-            local visual = Instance.new("Part")
-            visual.Anchored = true
-            visual.CanCollide = false
-            visual.Size = Vector3.new(1, 1, 1)
-            visual.Shape = Enum.PartType.Ball
-            visual.Material = Enum.Material.Neon
-
-            local function getRandomBrightColor()
-                local r = math.random(150, 255)
-                local g = math.random(150, 255)
-                local b = math.random(150, 255)
-                return Color3.fromRGB(r, g, b)
-            end
-
-            visual.Color = getRandomBrightColor()
-            visual.Transparency = 0.25
-            visual.Position = position
-            visual.Name = "ManualVisual_" .. index
-            visual.Parent = workspace
-
-            local billboard = Instance.new("BillboardGui")
-            billboard.Adornee = visual
-            billboard.Size = UDim2.new(0, 100, 0, 50)
-            billboard.StudsOffset = Vector3.new(0, 2, 0)
-            billboard.AlwaysOnTop = true
-            billboard.Parent = visual
-
-            local label = Instance.new("TextLabel")
-            label.Size = UDim2.new(1, 0, 1, 0)
-            label.BackgroundTransparency = 1
-            label.TextColor3 = Color3.new(1, 1, 1)
-            label.TextStrokeTransparency = 0
-            label.Font = Enum.Font.SourceSansBold
-            label.TextScaled = true
-            label.Text = manualUnitData[index] and manualUnitData[index].unitName or "Unknown"
-            label.Parent = billboard
-
-            manualVisualizers[index] = visual
-        end
-
-        local function findGroundPosition(origin)
-            local rayParams = RaycastParams.new()
-            rayParams.FilterDescendantsInstances = {workspace:FindFirstChild("Ignore") or nil} -- Optional
-            rayParams.FilterType = Enum.RaycastFilterType.Blacklist
-            rayParams.IgnoreWater = true
-
-            local rayDirection = Vector3.new(0, -1000, 0)
-
-            local result = workspace:Raycast(origin, rayDirection, rayParams)
-
-            if result then
-                return result.Position
-            else
-                return origin - Vector3.new(0, 5, 0)
-            end
-        end
-
-        local function manualsetup()
-            local gui = player:WaitForChild("PlayerGui")
-            local bottom = gui:WaitForChild("Bottom")
-            local root = bottom:WaitForChild("Frame")
-
-            for _, frameContainer in ipairs(root:GetChildren()) do
-                if frameContainer:IsA("Frame") then
-                    for _, slotContainer in ipairs(frameContainer:GetChildren()) do
-                        if slotContainer:IsA("Frame") then
-                            for _, textButton in ipairs(slotContainer:GetChildren()) do
-                                if textButton:IsA("TextButton") then
-                                    local innerFrame = textButton:FindFirstChild("Frame")
-                                    if innerFrame then
-                                        local slotNumberLabel = innerFrame:FindFirstChild("SlotNumber")
-                                        local viewport = innerFrame:FindFirstChild("Viewport")
-
-                                        if slotNumberLabel and viewport and viewport:FindFirstChild("WorldModel") then
-                                            local unitModel = viewport.WorldModel:FindFirstChildWhichIsA("Model")
-
-                                            if unitModel then
-                                                for _, name in ipairs(unitNames) do
-                                                    if unitModel.Name == name then
-                                                        local slotNumberText = slotNumberLabel.Text
-
-                                                        secSettings:AddButton({
-                                                            Title = "Set Position for Slot " .. slotNumberText,
-                                                            Callback = function()
-                                                                if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                                                                    local hrp = player.Character.HumanoidRootPart
-                                                                    local pos = findGroundPosition(hrp.Position)
-
-                                                                    manualUnitData[slotNumberText] = {
-                                                                        position = pos,
-                                                                        unitName = unitModel.Name,
-                                                                        unitsToPlace = manualUnitData[slotNumberText] and manualUnitData[slotNumberText].unitsToPlace or 1
-                                                                    }
-
-                                                                    if manualVisualizersEnabled then
-                                                                        createManualVisualizer(slotNumberText, pos)
-                                                                    end
-
-                                                                    saveUnitData()
-                                                                end
-                                                            end
-                                                        })
-
-                                                        secSettings:AddSlider("Slider_Slot_" .. slotNumberText, {
-                                                            Title = "Units for Slot " .. slotNumberText,
-                                                            Min = 1,
-                                                            Max = 8,
-                                                            Default = manualUnitData[slotNumberText] and manualUnitData[slotNumberText].unitsToPlace or 1,
-                                                            Rounding = 1,
-                                                            Callback = function(Value)
-                                                                if not manualUnitData[slotNumberText] then
-                                                                    manualUnitData[slotNumberText] = {}
-                                                                end
-                                                                manualUnitData[slotNumberText].unitsToPlace = Value
-                                                                saveUnitData()
-                                                            end
-                                                        })
-                                                    end
-                                                end
-                                            end
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-
-        local HttpService = game:GetService("HttpService")
-
-        local settingsFileName = "AutofarmSettings.json"
-        local autofarmSettings = {}
-        
-        local function loadfarmsettings()
-            if isfile(settingsFileName) then
-                local data = readfile(settingsFileName)
-                autofarmSettings = HttpService:JSONDecode(data)
-            else
-                autofarmSettings = {}
-            end
-        end
-        
-        local function savefarmsettings()
-            writefile(settingsFileName, HttpService:JSONEncode(autofarmSettings))
-        end
-        
-        loadfarmsettings()
-        
-        -- ============= TOGGLES =============
-        local manualPlacementEnabled = autofarmSettings.manualModeEnabled or false
-        local manualVisualizersEnabled = autofarmSettings.manualVisualizerEnabled or false
-        
-        local manualModeToggle = secSettings:AddToggle("manual_mode_toggle", {
-            Title = "Use Manual Placement Mode",
-            Default = manualPlacementEnabled
-        })
-        
-        manualModeToggle:OnChanged(function()
-            manualPlacementEnabled = manualModeToggle.Value
-            autofarmSettings.manualModeEnabled = manualPlacementEnabled
-            savefarmsettings()
-        end)
-        
-        local manualToggle = secSettings:AddToggle("manual_show", {
-            Title = "Show Manual Placements",
-            Default = manualVisualizersEnabled
-        })
-        
-        manualToggle:OnChanged(function()
-            manualVisualizersEnabled = manualToggle.Value
-            autofarmSettings.manualVisualizerEnabled = manualVisualizersEnabled
-            savefarmsettings()
-        
-            if not manualVisualizersEnabled then
-                for _, v in pairs(manualVisualizers) do
-                    if v then v:Destroy() end
-                end
-                manualVisualizers = {}
-            else
-                for i, data in pairs(manualUnitData) do
-                    createManualVisualizer(i, data.position)
-                end
-            end
-        end)
-        
-        local autoplaceEnabled = autofarmSettings.autoPlaceEnabled or false
-        
-        local autoplace = secAutofarm:AddToggle("autoplace_toggle", {
-            Title = "Auto Place Units",
-            Default = autoplaceEnabled
-        })
-        
-        autoplace:OnChanged(function()
-            autofarmSettings.autoPlaceEnabled = autoplace.Value
-            savefarmsettings()
-        
-            if autoplace.Value then
-                task.spawn(function()
-                    while autoplace.Value do
-                        if manualPlacementEnabled and next(manualUnitData) ~= nil then
-                            for slot, data in pairs(manualUnitData) do
-                                local pos = data.position
-                                local cframe = CFrame.new(pos)
-                                PlaceTower:FireServer(data.unitName, cframe)
-                                task.wait(unitDelay)
-                            end
-                        else
-                            local _, enemyPos, enemyCF = getClosestEnemyPositionAndOrientation()
-                            if enemyPos and enemyCF then
-                                local selectedPositions = {"Front", "Left", "Right"}
-                                for _, posType in ipairs(selectedPositions) do
-                                    local position = calculatePosition(enemyPos, enemyCF, posType, spacing)
-                                    local cframe = CFrame.new(position)
-        
-                                    for _, descendant in ipairs(root:GetDescendants()) do
-                                        if descendant:IsA("WorldModel") then
-                                            for _, model in ipairs(descendant:GetChildren()) do
-                                                if model:IsA("Model") then
-                                                    PlaceTower:FireServer(model.Name, cframe)
-                                                    task.wait(unitDelay)
-                                                end
-                                            end
-                                        end
-                                    end
-                                end
-                            end
-                            task.wait(0.1)
-                        end
-                    end
-                end)
-            end
-        end)
-        
-        local autoupgradeEnabled = autofarmSettings.autoUpgradeEnabled or false
-        
-        local autoup = secAutofarm:AddToggle("autoupgrade_toggle", {
-            Title = "Auto Upgrade Units",
-            Default = autoupgradeEnabled
-        })
-        
-        autoup:OnChanged(function()
-            autofarmSettings.autoUpgradeEnabled = autoup.Value
-            savefarmsettings()
-        
-            if autoup.Value then
-                task.spawn(function()
-                    while autoup.Value do
-                        task.wait(upgradeDelay)
-                        for _, tower in ipairs(workspace.Towers:GetChildren()) do
-                            if tower:IsA("Model") then
-                                UpgradeRemote:InvokeServer(tower)
-                            end
-                        end
-                    end
-                end)
-            end
-        end)        
-
-        updateUnitNames()
-        loadUnitData()
-        manualsetup()
-
-        -- Sell All Units Button
-        secAutofarm:AddButton(
-            {
-                Title = "Sell All Units",
-                Callback = function()
-                    SellAllRemote:FireServer()
-                end
-            }
-        )
-    end
-
-    Tabs.macro = Window:AddTab({Title = "Macro", Icon = "book"})
-    local UI = Tabs.macro
-
-    local Ply = game.Players.LocalPlayer
-    local Rep = game:GetService("ReplicatedStorage")
-    local Guis = Ply:WaitForChild("PlayerGui")
-
-    local folderRoot = "Karmapanda"
-    local alsFolder = folderRoot .. "/Als"
-    local macroFolder = alsFolder .. "/Macro"
-
-    local function createFolderStructure()
-        if isfolder and makefolder then
-            if not isfolder(folderRoot) then makefolder(folderRoot) end
-            if not isfolder(alsFolder) then makefolder(alsFolder) end
-            if not isfolder(macroFolder) then makefolder(macroFolder) end
-        end
-    end
-
-    local function Set_macro_file(data, filemacro_names)
-        local filePath = macroFolder .. '/' .. tostring(filemacro_names) .. ".json"
-        local suc = pcall(function()
-            createFolderStructure()
-            if writefile then
-                writefile(filePath, game:GetService("HttpService"):JSONEncode(data))
-            end
-        end)
-        return suc
-    end
-
-    local function Load_macro_file(filemacro_names)
-        local suc, res = pcall(function()
-            createFolderStructure()
-            return game:GetService("HttpService"):JSONDecode(readfile(macroFolder..'/'..tostring(filemacro_names)..".json"))
-        end)
-        if suc then
-            return res
-        else
-            return nil
-        end
-    end
-
-    local function Load_macro_list()
-        local suc, res = pcall(function()
-            createFolderStructure()
-            if listfiles then
-                return listfiles(macroFolder)
-            end
-        end)
-
-        if suc then
-            local filenames = {}
-            for _, v in pairs(res) do
-                local name = v:match("([^/\\]+)$")
-                local filepart = name:match("(.+)%..+$") or name
-                table.insert(filenames, filepart)
-            end
-            return filenames
-        else
-            return nil
-        end
-    end
-
-    local function Deletefile(filemacro)
-        local filePath = macroFolder .. '/' .. tostring(filemacro) .. ".json"
-        if isfile and isfile(filePath) then
-            delfile(filePath)
-            return true
-        else
-            return false
-        end
-    end
-
-    local macro_forsave = {}
-    local current_index = 1
-    local Isrecording = false
-    local cannext = true
-
-    createFolderStructure()
-
-    local All_macro = Load_macro_list() or {}
-    if not table.find(All_macro, "DefaultProfile") then
-        Set_macro_file({index = 0, Actions = {}, Map = "Unknown"}, "DefaultProfile")
-        All_macro = Load_macro_list() or {}
-    end
-
-    local Options = Fluent.Options
-
-    Options.Setting = Options.Setting or {
-        Play_macro = false,
-        Select_macro = "DefaultProfile",
-        Macro_action = {"Upgrade", "Target", "Sell", "Place", "Ability"}
-    }
-
-    UI:AddSection("Macro Management")
-    local Dropdown = UI:AddDropdown("macrotabs", {
-        Title = "Select Macro",
-        Values = All_macro,
-        Multi = false,
-        Default = "DefaultProfile"
-    })
-
-    UI:AddButton({
-        Title = "Refresh Macro List",
-        Callback = function()
-            local list = Load_macro_list() or {}
-            Dropdown:SetValues(list)
-            Fluent:Notify({
-                Title = "List Updated",
-                Content = #list.." macros found",
-                Duration = 2
-            })
-        end
-    })
-
-    UI:AddButton({
-        Title = "Delete Selected Macro",
-        Callback = function()
-            if Options.macrotabs.Value then
-                Deletefile(Options.macrotabs.Value)
-                local list = Load_macro_list() or {}
-                Dropdown:SetValues(list)
-                Fluent:Notify({
-                    Title = "Macro Deleted",
-                    Content = Options.macrotabs.Value.." deleted",
-                    Duration = 3
-                })
-            end
-        end
-    })
-
-    UI:AddSection("Create Macro")
-    local NewMacroInput = UI:AddInput("macrofilename_ins", {
-        Title = "New Macro Name",
-        Placeholder = "Enter new macro name...",
-        Default = "",
-        Numeric = false,
-        Finished = false,
-    })
-
-    UI:AddButton({
-        Title = "Create New Macro",
-        Callback = function()
-            local name = Options.macrofilename_ins.Value
-            if name == "" then
-                Fluent:Notify({
-                    Title = "Error",
-                    Content = "Please enter a macro name!",
-                    Duration = 3,
-                    Type = "error"
-                })
-                return
-            end
-            Set_macro_file({index = 0, Actions = {}, Map = "Unknown"}, name)
-            local list = Load_macro_list() or {}
-            Dropdown:SetValues(list)
-            Fluent:Notify({
-                Title = "Macro Created",
-                Content = name.." created successfully!",
-                Duration = 3
-            })
-        end
-    })
-
-    UI:AddSection("Recording Controls")
-    local Record_state = UI:AddParagraph({
-        Title = "Recording Status: 🔴",
-    })
-
-    UI:AddDropdown("macroaction_drops", {
-        Title = "Tracked Actions",
-        Values = {"Upgrade", "Target", "Sell", "Place", "Ability"},
-        Multi = true,
-        Default = {"Upgrade", "Target", "Sell", "Place", "Ability"},
-    })
-
-    local record_toggle = UI:AddToggle("recordings", {
-        Title = "Start/Stop Recording",
-        Default = false
-    })
-
-    record_toggle:OnChanged(function()
-        if Options.recordings.Value then
-            Window:Dialog({
-                Title = "Start New Recording?",
-                Content = "Starting a new recording will erase the current macro!\nAre you sure you want to continue?",
-                Buttons = {
-                    {
-                        Title = "Yes, Start Recording",
-                        Callback = function()
-                            Isrecording = true
-                            Record_state:SetTitle("Recording Status: 🟢\nRecording to: "..(Options.macrotabs.Value or "None"))
-                            macro_forsave[Options.macrotabs.Value] = {index = 0, Actions = {}, Map = "Unknown"}
-                        end
-                    },
-                    {
-                        Title = "Cancel",
-                        Callback = function()
-                            Isrecording = false
-                            Options.recordings:SetValue(false)
-                            Record_state:SetTitle("Recording Status: 🔴\nNot currently recording")
-                        end
-                    }
+end
+
+-- detection for when GUI appears
+playerGui.ChildAdded:Connect(
+    function(child)
+        if child:IsA("ScreenGui") and child.Name:match("^Ability") then
+            GetAbilityGui()
+            refreshAbilities()
+            Fluent:Notify(
+                {
+                    Title = "New Abilities Detected!",
+                    Content = "Ability list has been updated",
+                    Duration = 5
                 }
-            })
-        else
-            Isrecording = false
-            Record_state:SetTitle("Recording Status: 🔴\nRecording saved to: "..(Options.macrotabs.Value or "None"))
-            if macro_forsave[Options.macrotabs.Value] then
-                Set_macro_file(macro_forsave[Options.macrotabs.Value], Options.macrotabs.Value)
-            end
-        end
-    end)
-
-    UI:AddSection("Playback Controls")
-    local Plays_state = UI:AddParagraph({
-        Title = "Playback Status: 🔴",
-        Content = "Macro not running"
-    })
-
-    local play_macro = UI:AddToggle("play_macros", {
-        Title = "Enable Playback",
-        Default = false
-    })
-
-    play_macro:OnChanged(function()
-        Options.Setting.Play_macro = Options.play_macros.Value
-        if Options.Setting.Play_macro then
-            Plays_state:SetTitle("Playback Status: 🟢\nPlaying: "..(Options.macrotabs.Value or "None"))
-        else
-            Plays_state:SetTitle("Playback Status: 🔴\nPlayback stopped")
-        end
-    end)
-
-    local function Tower_add(player, index, waitForResult)
-        local towers = workspace:WaitForChild("Towers")
-        local Result = nil
-    
-        local connection
-        connection = towers.ChildAdded:Connect(function(tower)
-            task.spawn(function()
-                task.wait(0.5)
-                if tower:FindFirstChild("Owner") and tostring(tower.Owner.Value) == player.Name then
-                    if not tower:FindFirstChild("Unit_index") then
-                        local count = Instance.new("NumberValue")
-                        count.Name = "Unit_index"
-                        count.Value = index
-                        count.Parent = tower
-                        Result = tower
-                    end
-                end
-            end)
-            connection:Disconnect()
-        end)
-    
-        if waitForResult then
-            while not Result or not Result:FindFirstChild("Unit_index") do
-                task.wait()
-            end
-            return Result:FindFirstChild("Unit_index").Value
-        else
-            return true
+            )
         end
     end
-    
-    
-    local current_index = 1
-    local All_index = {}
-    task.spawn(function()
-        pcall(function()
-            while wait() do
-                if Options.Setting.Play_macro and Options.Setting.Select_macro then
-                    local Load_macro = Load_macro_file(Options.Setting.Select_macro)
-                    local Game_time = Rep:FindFirstChild("ElapsedTime").Value or 0
-                    local Money = Ply:FindFirstChild("Cash")
-                    local Wave = Rep:FindFirstChild("Wave")
-    
-                    if Guis:FindFirstChild("Bottom") then
-                        Guis.Bottom.Frame.Frame.Visible = false
-                    end
-    
-                    Wave:GetPropertyChangedSignal("Value"):Connect(function()
-                        if Wave.Value == 1 then
-                            current_index = 1
-                        end
-                    end)
-    
-                    if current_index <= (Load_macro and Load_macro.index or 0) then
-                        Plays_state:SetTitle("Macro is Playing: 🟢")
-    
-                        for _, v in ipairs(Load_macro.Actions) do
-                            if v.Data.index == current_index then
-                                if v.Data.Method then
-                                    local args = {}
-                                    for _, arg in pairs(v.Data.Args) do
-                                        if arg.Type == "string" then
-                                            table.insert(args, arg.Value)
-                                        elseif arg.Type == "CFrame" then
-                                            table.insert(args, CFrame.new(unpack(arg.Value)))
-                                        end
-                                    end
-    
-                                    local remote = Rep.Remotes:FindFirstChild(v.Data.action)
-                                    if remote then
-                                        if v.Data.action == "PlaceTower" then
-                                            local cost = Unit_Data[args[1]].TowerInfo[0]['Cost']
-                                            while Money.Value < cost do
-                                                task.wait()
-                                                cannext = false
-                                            end
-    
-                                            if Money.Value >= cost then
-                                                remote[v.Data.Method](remote, unpack(args))
-                                                Tower_add(Ply, v.Data.Unit_index, false)
-                                                task.wait(0.3)
-                                                cannext = true
-                                            end
-    
-                                        elseif v.Data.action == "Upgrade" then
-                                            for _, unit in ipairs(workspace.Towers:GetChildren()) do
-                                                local owner = unit:FindFirstChild("Owner")
-                                                if owner and tostring(owner.Value) == Ply.Name and unit:FindFirstChild("Unit_index") and unit.Unit_index.Value == v.Data.Unit_index then
-                                                    remote[v.Data.Method](remote, unit)
-                                                    cannext = true
-                                                end
-                                            end
-    
-                                        elseif v.Data.action == "ChangeTargeting" or v.Data.action == "Sell" then
-                                            for _, unit in ipairs(workspace.Towers:GetChildren()) do
-                                                local owner = unit:FindFirstChild("Owner")
-                                                if owner and tostring(owner.Value) == Ply.Name and unit:FindFirstChild("Unit_index") and unit.Unit_index.Value == v.Data.Unit_index then
-                                                    remote[v.Data.Method](remote, unit)
-                                                end
-                                            end
-    
-                                        elseif v.Data.action == "Ability" then
-                                            for _, unit in ipairs(workspace.Towers:GetChildren()) do
-                                                local owner = unit:FindFirstChild("Owner")
-                                                if owner and tostring(owner.Value) == Ply.Name and unit:FindFirstChild("Unit_index") and unit.Unit_index.Value == v.Data.Unit_index then
-                                                    remote[v.Data.Method](remote, unpack({unit, args[2]}))
-                                                end
-                                            end
-                                        end
-                                    end
-                                end
-                            end
-                        end
-    
-                        while not cannext do
-                            task.wait()
-                        end
-    
-                        current_index = current_index + 1
-                        task.wait(0.6)
-                    else
-                        current_index = 1
-                    end
-                end
-            end
-        end)
-    end)
+)
 
-    coroutine.wrap(function()
-        local Action = {
-            ["Upgrade"] = "Upgrade",
-            ["Target"] = "ChangeTargeting",
-            ["Sell"] = "Sell",
-            ["Place"] = "PlaceTower",
-            ["Ability"] = "Ability",
-        }
-        
-        local OldNamecall
-        OldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
-            local method = getnamecallmethod()
-            local args = {...}
-    
-            if not checkcaller() and (method == "FireServer" or method == "InvokeServer") then
-                if Options.Setting.Select_macro and not workspace:FindFirstChild("Lobby") and Isrecording then
-                    for _, v in ipairs(Options.Setting.Macro_action) do
-                        if Action[v] and tostring(self) == Action[v] then
-                            local Game_time = Rep:FindFirstChild("ElapsedTime") or {Value = 0}
-                            local Wave = Rep:FindFirstChild("Wave") or {Value = 1}
-                            local Mapname = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("MapName")
-    
-                            if not macro_forsave[Options.Setting.Select_macro] then
-                                macro_forsave[Options.Setting.Select_macro] = {
-                                    index = 0,
-                                    Actions = {},
-                                    Map = Mapname and Mapname.Value or "Unknown"
-                                }
-                            end
-    
-                            macro_forsave[Options.Setting.Select_macro].index += 1
-    
-                            local Arguments = {}
-                            for _, arg in pairs(args) do
-                                if typeof(arg) == "CFrame" then
-                                    table.insert(Arguments, {Value = {arg:GetComponents()}, Type = "CFrame"})
-                                else
-                                    table.insert(Arguments, {Value = tostring(arg), Type = "string"})
-                                end
-                            end
-    
-                            local unit_index = nil
-                            if tostring(self) == "PlaceTower" then
-                                getgenv().Unit_index += 1
-                                unit_index = Tower_add(Ply, getgenv().Unit_index, true)
-                            else
-                                for _, unit in ipairs(workspace:FindFirstChild("Towers"):GetChildren()) do
-                                    local owner = unit:FindFirstChild("Owner")
-                                    if owner and tostring(owner.Value) == Ply.Name and unit == args[1] then
-                                        unit_index = unit:FindFirstChild("Unit_index") and unit.Unit_index.Value
-                                    end
-                                end
-                            end
-    
-                            table.insert(macro_forsave[Options.Setting.Select_macro].Actions, {
-                                Data = {
-                                    index = macro_forsave[Options.Setting.Select_macro].index,
-                                    action = tostring(self),
-                                    Args = Arguments,
-                                    Method = method,
-                                    Wave = Wave.Value,
-                                    Unit_index = unit_index
-                                },
-                                Time = Game_time.Value
-                            })
-    
-                            print("[Macro Recorded]: "..tostring(self))
+local cooldowns = {}
+
+local function getCurrentMana()
+    local manaText = manaLabel.Text
+    manaText = manaText:gsub(",", "")
+    local manaNumber = tonumber(manaText)
+    return manaNumber
+end
+
+local function useAbility(abilityName)
+    local args = {
+        [1] = abilityName,
+        [2] = {}
+    }
+    ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Abilities"):WaitForChild("Use"):FireServer(unpack(args))
+end
+
+local function getBackpackTools()
+    local tools = {}
+    if not backpack then
+        return tools
+    end
+
+    for _, tool in ipairs(backpack:GetChildren()) do
+        if tool:IsA("Tool") then
+            table.insert(tools, tool.Name)
+        end
+    end
+    return tools
+end
+
+local gunList = {}
+local chosenGunName = nil
+
+-- Classic functions
+local npcFolder = workspace:FindFirstChild("NPCs")
+if not npcFolder then
+    warn("No NPCs folder found!")
+end
+
+local bossNames = {
+    ["Mutant Blaze"] = true,
+    ["Brute"] = true,
+    ["Bolty"] = true,
+    ["Titan"] = true,
+    ["Kraken"] = true,
+    ["Corrupted Titan"] = true,
+    ["Corrupted Brute"] = true,
+    ["Corrupted Bolty"] = true
+}
+
+function getAliveHeadsFrom(folder, isBoss)
+    local targets = {}
+    if not folder then
+        return targets
+    end
+
+    for _, v in ipairs(folder:GetDescendants()) do
+        if v:IsA("BasePart") and v.Name == "Head" then
+            local model = v:FindFirstAncestorOfClass("Model")
+            if model and model:FindFirstChild("Humanoid") then
+                local humanoid = model.Humanoid
+                if humanoid.Health > 0 then
+                    local grandparent = model.Parent
+                    if grandparent and (grandparent.Name == "Tango" or grandparent.Name == "Monsters") then
+                        local isBossModel = bossNames[model.Name]
+                        if (isBoss and isBossModel) or (not isBoss and not isBossModel) then
+                            table.insert(targets, v)
                         end
                     end
                 end
             end
-    
-            return OldNamecall(self, unpack(args))
-        end)
-    end)()    
+        end
+    end
 
-    local secCredits = Tabs.Credits
-    secCredits:AddSection("Credits")
-    secCredits:AddButton(
-        {
-            Title = "Copy Discord Server Link",
-            Description = "Karmapanda Hub Discord",
-            Callback = function()
-                setclipboard("https://discord.gg/BrnQQGKbvE")
+    return targets
+end
+
+function getboss()
+    local bosses = getAliveHeadsFrom(npcFolder, true)
+    return #bosses > 0 and bosses[math.random(1, #bosses)] or nil
+end
+
+function getRandomEnemy()
+    local enemies = {}
+    for _, part in ipairs(workspace.NPCs:GetDescendants()) do
+        if part:IsA("BasePart") and part.Name == "Head" then
+            local model = part:FindFirstAncestorOfClass("Model")
+            if model and model:FindFirstChild("Humanoid") and model.Humanoid.Health > 0 then
+                local groupName = model.Parent and model.Parent.Name
+                if groupName == "Monsters" or model.Name == "Tango" then
+                    table.insert(enemies, part)
+                end
+            end
+        end
+    end
+    return #enemies > 0 and enemies[math.random(1, #enemies)] or nil
+end
+
+function focusOneEnemy()
+    for _, part in ipairs(workspace.NPCs:GetDescendants()) do
+        if part:IsA("BasePart") and part.Name == "Head" then
+            local model = part:FindFirstAncestorOfClass("Model")
+            if model and model:FindFirstChild("Humanoid") and model.Humanoid.Health > 0 then
+                local groupName = model.Parent and model.Parent.Name
+                if groupName == "Monsters" or model.Name == "Tango" then
+                    return part
+                end
+            end
+        end
+    end
+    return nil
+end
+
+local bossSpawnTime = nil
+local lastBossName = ""
+
+function getTargetEnemy()
+    local enemy = getboss()
+    local isBoss = false
+
+    if enemy then
+        isBoss = true
+        local bossName = enemy.Parent and enemy.Parent.Name or "Unknown"
+
+        if bossName ~= lastBossName then
+            lastBossName = bossName
+            bossSpawnTime = tick()
+            Fluent:Notify(
+                {
+                    Title = "Attacking Boss",
+                    Content = bossName,
+                    Duration = 3
+                }
+            )
+        else
+            if bossSpawnTime and (tick() - bossSpawnTime) >= 240 then
                 Fluent:Notify(
                     {
-                        Title = "Discord Server Link Copied",
-                        Content = "Discord Server Link has been copied to clipboard",
+                        Title = "Bad DPS",
+                        Content = "Your Team should consider kill themselves",
+                        Duration = 5
+                    }
+                )
+                bossSpawnTime = nil
+            end
+        end
+    else
+        if lastBossName ~= "" then
+            Fluent:Notify(
+                {
+                    Title = "Boss Defeated",
+                    Content = ("%s gone | Active: %s%s"):format(
+                        lastBossName,
+                        Options.FocusEnemyToggle.Value and "Focus " or "",
+                        Options.RandomEnemyToggle.Value and "Random" or ""
+                    ),
+                    Duration = 5
+                }
+            )
+            lastBossName = ""
+            bossSpawnTime = nil
+        end
+
+        if Options.FocusEnemyToggle.Value then
+            enemy = focusOneEnemy()
+        end
+
+        if not enemy and Options.RandomEnemyToggle.Value then
+            enemy = getRandomEnemy()
+        end
+    end
+
+    return enemy, isBoss
+end
+
+function pressRKey()
+    local VirtualInputManager = game:GetService("VirtualInputManager")
+    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.R, false, game)
+    task.wait(0.1)
+    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.R, false, game)
+end
+
+function stopautofarm()
+    autoFarmRunning = false
+    if autoFarmThread then
+        coroutine.close(autoFarmThread)
+        autoFarmThread = nil
+    end
+end
+
+function startautofarm()
+    if autoFarmRunning then
+        return
+    end
+    autoFarmRunning = true
+
+    autoFarmThread =
+        coroutine.create(
+        function()
+            while autoFarmRunning and Options.AutoFarmToggle.Value do
+                local player = game.Players.LocalPlayer
+                local character = player.Character or player.CharacterAdded:Wait()
+                local tool = character:FindFirstChildOfClass("Tool")
+
+                if tool and tool:FindFirstChild("Handle") then
+                    local barrel = tool.Handle:FindFirstChild("Barrel")
+                    if barrel then
+                        local reloadTime = tool:GetAttribute("ReloadTime") or 0.1
+                        local damage = tool:GetAttribute("Damage") or 50
+                        local ammo = tool:GetAttribute("Ammo") or {Min = 0, Max = 0}
+
+                        local target = getTargetEnemy()
+
+                        if
+                            target and target:IsA("BasePart") and target.Parent:FindFirstChild("Humanoid") and
+                                target.Parent.Humanoid.Health > 0
+                         then
+                            local headPos = target.Position + Vector3.new(0, target.Size.Y / 2, 0)
+
+                            game.ReplicatedStorage.BulletReplication.ReplicateClient:Fire("MUZZLE", barrel)
+                            game.ReplicatedStorage.BulletReplication.ReplicateClient:Fire(
+                                "HIT",
+                                barrel,
+                                {
+                                    [1] = headPos,
+                                    [3] = false,
+                                    [4] = "Plastic"
+                                }
+                            )
+                            tool.Main:FireServer("MUZZLE", barrel)
+                            tool.Main:FireServer(
+                                "DAMAGE",
+                                {
+                                    [1] = target,
+                                    [2] = headPos,
+                                    [3] = damage
+                                }
+                            )
+                        end
+
+                        -- Reload handling
+                        if ammo.Min <= 0 then
+                            pressRKey()
+                            task.wait(reloadTime)
+                            tool.Main:FireServer("AMMO")
+                        end
+                    end
+                end
+                task.wait(0.1)
+            end
+            autoFarmRunning = false
+        end
+    )
+
+    coroutine.resume(autoFarmThread)
+end
+
+function autoFarmLoop()
+    spawn(
+        function()
+            while Options.riskautofarm.Value do
+                task.wait(0.1)
+                local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+
+                local tool = character:FindFirstChildOfClass("Tool")
+                local barrel = tool and tool.Handle and tool.Handle:FindFirstChild("Barrel")
+                local enemy = getTargetEnemy()
+
+                if enemy and enemy:IsA("BasePart") and barrel then
+                    local main = tool:FindFirstChild("Main")
+                    if main then
+                        ReplicatedStorage.BulletReplication.ReplicateClient:Fire("MUZZLE", barrel)
+                        ReplicatedStorage.BulletReplication.ReplicateClient:Fire(
+                            "HIT",
+                            barrel,
+                            {[1] = enemy.Position, [3] = false, [4] = "Plastic"}
+                        )
+                        main:FireServer("MUZZLE", barrel)
+                        main:FireServer("DAMAGE", {[1] = enemy, [2] = enemy.Position, [3] = 10})
+                        main:FireServer("AMMO")
+                    end
+                end
+            end
+        end
+    )
+end
+
+-- local functions and stuff ends
+
+do
+    --Main
+    local UI = tabs.main:AddSection("Functions")
+
+    local abilityList = {}
+    local selectedAbilities = {}
+
+    local MultiDropdown =
+        UI:AddDropdown(
+        "AbilitiesDropdown",
+        {
+            Title = "Select Abilities",
+            Description = "Choose which abilities to auto-use (Projectiles doesnt work)",
+            Values = abilityList,
+            Multi = true,
+            Default = {}
+        }
+    )
+
+    -- Handle selection changes
+    MultiDropdown:OnChanged(
+        function(values)
+            selectedAbilities = {}
+            for _, name in ipairs(values) do
+                selectedAbilities[name] = true
+            end
+        end
+    )
+
+    local function refreshAbilities()
+        if not GetAbilityGui() then
+            Fluent:Notify(
+                {
+                    Title = "No Abilities Detected",
+                    Content = "Equip an operative with abilities first!",
+                    Duration = 5,
+                    Type = "warning"
+                }
+            )
+            MultiDropdown:SetValue({})
+            return
+        end
+
+        local newAbilityList = {}
+        for _, abilityFrame in ipairs(mainFrame:GetChildren()) do
+            if abilityFrame:IsA("Frame") and abilityFrame:FindFirstChild("ManaReq") then
+                print("Detected ability:", abilityFrame.Name)
+                table.insert(newAbilityList, abilityFrame.Name)
+            end
+        end
+
+        MultiDropdown.Values = newAbilityList
+
+        MultiDropdown:SetValue({})
+    end
+
+    refreshAbilities()
+
+    -- Refresh button
+    UI:AddButton(
+        {
+            Title = "Refresh Abilities",
+            Callback = function()
+                refreshAbilities()
+                Fluent:Notify(
+                    {
+                        Title = "Abilities Refreshed",
+                        Content = "Ability list has been updated",
                         Duration = 3
                     }
                 )
             end
         }
     )
-    -- ====== UI CONFIGURATION SECTION ======
-    SaveManager:SetLibrary(Fluent)
-    InterfaceManager:SetLibrary(Fluent)
-    SaveManager:IgnoreThemeSettings()
-    SaveManager:SetFolder("Karmapanda/ALS")
 
-    SaveManager:SetIgnoreIndexes({})
-    InterfaceManager:SetFolder("Fluent")
-    Window:SelectTab(1)
-
-    local function CreateHideButtonGUI()
-        loadstring(game:HttpGet(
-                       'https://raw.githubusercontent.com/Jeikaru/Roblox/main/HideGui'))()
-    end
-
-    CreateHideButtonGUI()
-    Fluent:Notify(
+    -- Auto Ability toggle
+    local AutoToggle =
+        UI:AddToggle(
+        "AutoAbilityToggle",
         {
-            Title = "Interface",
-            Content = "The script has been loaded.",
-            Duration = 8
+            Title = "Auto Ability",
+            Default = false
         }
     )
-    SaveManager:LoadAutoloadConfig()
+
+    AutoToggle:OnChanged(
+        function()
+            if Options.AutoAbilityToggle.Value then
+                Fluent:Notify(
+                    {
+                        Title = "Auto Ability Enabled",
+                        Content = "Selected abilities will auto-cast",
+                        Duration = 3
+                    }
+                )
+            else
+                Fluent:Notify(
+                    {
+                        Title = "Auto Ability Disabled",
+                        Content = "Auto-casting stopped",
+                        Duration = 3
+                    }
+                )
+            end
+        end
+    )
+
+    task.spawn(
+        function()
+            while task.wait(0.5) do
+                if Options.AutoAbilityToggle.Value and abilityGui then
+                    local selectedAbilities = MultiDropdown.Value
+
+                    for _, abilityFrame in ipairs(mainFrame:GetChildren()) do
+                        if abilityFrame:IsA("Frame") and abilityFrame:FindFirstChild("ManaReq") then
+                            local abilityName = abilityFrame.Name
+
+                            -- Only process if selected
+                            if selectedAbilities[abilityName] then
+                                local manaRequirement = tonumber(abilityFrame.ManaReq.Text:gsub(",", "")) or 0
+                                local currentMana = getCurrentMana()
+                                local abilityInfo =
+                                    abilityData and abilityData.Abilities and abilityData.Abilities[abilityName]
+
+                                if abilityInfo then
+                                    local cooldown = abilityInfo.Cooldown or 0
+                                    local lastUse = cooldowns[abilityName] or 0
+                                    local now = tick()
+
+                                    local canUse = now - lastUse >= cooldown and currentMana >= manaRequirement
+                                    local shouldSkip = false
+
+                                    -- Special case for NineTailedFox
+                                    if abilityName == "NineTailedFox" then
+                                        local friendsUI = playerGui:FindFirstChild("FriendsUI")
+                                        if
+                                            friendsUI and friendsUI:FindFirstChild("Main") and
+                                                friendsUI.Main:FindFirstChild("List")
+                                         then
+                                            for _, child in ipairs(friendsUI.Main.List:GetChildren()) do
+                                                if child:IsA("Frame") and child.Name:sub(1, 3) == "E11" then
+                                                    warn(
+                                                        "Skipped NineTailedFox: Detected E11 unit (" ..
+                                                            child.Name .. ")"
+                                                    )
+                                                    shouldSkip = true
+                                                    break
+                                                end
+                                            end
+                                        end
+                                    end
+
+                                    if canUse and not shouldSkip then
+                                        useAbility(abilityName)
+                                        cooldowns[abilityName] = now
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    )
+
+    local GunDropdown =
+        UI:AddDropdown(
+        "GunDropdown",
+        {
+            Title = "Select Gun",
+            Description = "Choose a gun to auto-equip",
+            Values = gunList,
+            Multi = false,
+            Default = nil
+        }
+    )
+
+    local function refreshGuns()
+        local previousCount = #gunList
+        local newGunList = getBackpackTools()
+
+        local character = player.Character
+        if character then
+            for _, item in ipairs(character:GetChildren()) do
+                if item:IsA("Tool") and not table.find(newGunList, item.Name) then
+                    table.insert(newGunList, item.Name)
+                end
+            end
+        end
+
+        gunList = newGunList
+        GunDropdown:SetValues(gunList)
+
+        if chosenGunName and not table.find(gunList, chosenGunName) then
+            chosenGunName = nil
+            GunDropdown:SetValue(nil)
+            Fluent:Notify(
+                {
+                    Title = "Gun Removed",
+                    Content = "Selected gun no longer in backpack or equipped",
+                    Duration = 3,
+                    Type = "warning"
+                }
+            )
+        end
+
+        if #gunList > previousCount then
+            Fluent:Notify(
+                {
+                    Title = "New Guns Detected!",
+                    Content = ("Found %d new weapons"):format(#gunList - previousCount),
+                    Duration = 3
+                }
+            )
+        end
+    end
+
+    backpack.ChildAdded:Connect(
+        function(child)
+            if child:IsA("Tool") then
+                refreshGuns()
+            end
+        end
+    )
+
+    backpack.ChildRemoved:Connect(
+        function(child)
+            if child:IsA("Tool") then
+                refreshGuns()
+            end
+        end
+    )
+
+    UI:AddButton(
+        {
+            Title = "Refresh Guns",
+            Callback = function()
+                refreshGuns()
+                Fluent:Notify(
+                    {
+                        Title = "Guns Refreshed",
+                        Content = ("Found %d weapons"):format(#gunList),
+                        Duration = 3
+                    }
+                )
+            end
+        }
+    )
+
+    -- Auto Equip Toggle
+    local AutoEquipToggle =
+        UI:AddToggle(
+        "AutoEquipToggle",
+        {
+            Title = "Auto Equip Gun",
+            Default = false
+        }
+    )
+
+    AutoEquipToggle:OnChanged(
+        function()
+            if Options.AutoEquipToggle.Value then
+                Fluent:Notify(
+                    {
+                        Title = "Auto Equip Enabled",
+                        Content = chosenGunName and "Auto-equipping " .. chosenGunName or "Select a gun first!",
+                        Duration = 3
+                    }
+                )
+            else
+                Fluent:Notify(
+                    {
+                        Title = "Auto Equip Disabled",
+                        Content = "Will not auto-equip guns",
+                        Duration = 3
+                    }
+                )
+            end
+        end
+    )
+
+    -- Update chosen gun when dropdown changes
+    GunDropdown:OnChanged(
+        function(Value)
+            chosenGunName = Value
+        end
+    )
+
+    -- auto-equip
+    task.spawn(
+        function()
+            while task.wait(0.5) do
+                pcall(
+                    function()
+                        if Options.AutoEquipToggle.Value and chosenGunName then
+                            local character = player.Character
+                            if not character then
+                                return
+                            end
+
+                            local humanoid = character:FindFirstChildOfClass("Humanoid")
+                            local currentTool = character:FindFirstChildOfClass("Tool")
+                            local backpack = player:FindFirstChild("Backpack")
+
+                            if not (humanoid and backpack) then
+                                return
+                            end
+
+                            -- Verify gun still exists before equipping
+                            local gun = backpack:FindFirstChild(chosenGunName)
+                            if gun and gun:IsA("Tool") then
+                                -- Only equip if not already equipped
+                                if not currentTool or currentTool.Name ~= chosenGunName then
+                                    humanoid:EquipTool(gun)
+                                end
+                            end
+                        end
+                    end
+                )
+            end
+        end
+    )
+
+    -- classic
+    local UI2 = tabs.classic:AddSection("Main")
+
+    local AutoFarmToggle =
+        UI2:AddToggle(
+        "AutoFarmToggle",
+        {
+            Title = "Auto Farm",
+            Default = false
+        }
+    )
+
+    AutoFarmToggle:OnChanged(
+        function()
+            if Options.AutoFarmToggle.Value then
+                startautofarm()
+            else
+                stopautofarm()
+            end
+            warn("Auto Farm Toggle changed:", Options.AutoFarmToggle.Value)
+        end
+    )
+
+    local RiskAutoFarmToggle =
+        UI2:AddToggle(
+        "Risk Autofarm",
+        {
+            Title = "Risk Autofarm (has a chance to get banned)",
+            Default = false
+        }
+    )
+
+    RiskAutoFarmToggle:OnChanged(
+        function()
+            if Options.riskautofarm.Value then
+                autoFarmLoop()
+            else
+                autoFarmLoop()
+            end
+            warn("Risk Auto Farm Toggle changed:", Options.AutoFarmToggle.Value)
+        end
+    )
+
+    local RandomEnemyToggle =
+        UI2:AddToggle(
+        "RandomEnemyToggle",
+        {
+            Title = "Get Random Enemy",
+            Default = false
+        }
+    )
+
+    RandomEnemyToggle:OnChanged(
+        function()
+            warn("Random Enemy Toggle changed:", Options.RandomEnemyToggle.Value)
+        end
+    )
+
+    local FocusEnemyToggle =
+        UI2:AddToggle(
+        "FocusEnemyToggle",
+        {
+            Title = "Focus Enemy",
+            Default = false
+        }
+    )
+
+    FocusEnemyToggle:OnChanged(
+        function()
+            warn("Focus Enemy Toggle changed:", Options.FocusEnemyToggle.Value)
+        end
+    )
+
+    -- local UI3 = tabs.extraction:AddSection("Main")
+    -- Add Paragraph that it only works on your own private server and doing it solo
+    -- Add Auto Turn on Auto Choose Map Toggle
+    -- Add Auto PotFarm Toggle
 end
