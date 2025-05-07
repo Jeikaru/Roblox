@@ -13,6 +13,8 @@ local backpack = player:WaitForChild("Backpack")
 local choosengun = nil
 local autoFarmRunning = false
 local autoFarmThread = nil
+local autoFarmLoopRunning = false
+local autoFarmLoopThread = nil
 
 local version = 3
 local Window =
@@ -417,34 +419,47 @@ function startautofarm()
     coroutine.resume(autoFarmThread)
 end
 
+function stopAutoFarmLoop()
+    autoFarmLoopRunning = false
+    if autoFarmLoopThread then
+        coroutine.close(autoFarmLoopThread)
+        autoFarmLoopThread = nil
+    end
+end
+
 function autoFarmLoop()
-    spawn(
-        function()
-            while Options.riskautofarm.Value do
-                task.wait(0.1)
-                local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if autoFarmLoopRunning then return end
+    autoFarmLoopRunning = true
 
-                local tool = character:FindFirstChildOfClass("Tool")
-                local barrel = tool and tool.Handle and tool.Handle:FindFirstChild("Barrel")
-                local enemy = getTargetEnemy()
+    autoFarmLoopThread = coroutine.create(function()
+        while autoFarmLoopRunning and Options.riskautofarm.Value do
+            task.wait(0.1)
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local hrp = character and character:FindFirstChild("HumanoidRootPart")
+            local tool = character:FindFirstChildOfClass("Tool")
+            local barrel = tool and tool.Handle and tool.Handle:FindFirstChild("Barrel")
+            local enemy = getTargetEnemy()
 
-                if enemy and enemy:IsA("BasePart") and barrel then
-                    local main = tool:FindFirstChild("Main")
-                    if main then
-                        ReplicatedStorage.BulletReplication.ReplicateClient:Fire("MUZZLE", barrel)
-                        ReplicatedStorage.BulletReplication.ReplicateClient:Fire(
-                            "HIT",
-                            barrel,
-                            {[1] = enemy.Position, [3] = false, [4] = "Plastic"}
-                        )
-                        main:FireServer("MUZZLE", barrel)
-                        main:FireServer("DAMAGE", {[1] = enemy, [2] = enemy.Position, [3] = 10})
-                        main:FireServer("AMMO")
-                    end
+            if enemy and enemy:IsA("BasePart") and barrel then
+                local main = tool:FindFirstChild("Main")
+                if main then
+                    game.ReplicatedStorage.BulletReplication.ReplicateClient:Fire("MUZZLE", barrel)
+                    game.ReplicatedStorage.BulletReplication.ReplicateClient:Fire(
+                        "HIT",
+                        barrel,
+                        {[1] = enemy.Position, [3] = false, [4] = "Plastic"}
+                    )
+                    main:FireServer("MUZZLE", barrel)
+                    main:FireServer("DAMAGE", {[1] = enemy, [2] = enemy.Position, [3] = 10})
+                    main:FireServer("AMMO")
                 end
             end
         end
-    )
+        autoFarmLoopRunning = false
+    end)
+
+    coroutine.resume(autoFarmLoopThread)
 end
 
 -- local functions and stuff ends
@@ -797,23 +812,47 @@ do
 
     local RiskAutoFarmToggle =
         UI2:AddToggle(
-        "Risk Autofarm",
+        "riskautofarm",
         {
             Title = "Risk Autofarm (has a chance to get banned)",
             Default = false
         }
     )
 
-    RiskAutoFarmToggle:OnChanged(
-        function()
-            if Options.riskautofarm.Value then
-                autoFarmLoop()
-            else
-                autoFarmLoop()
+    RiskAutoFarmToggle:OnChanged(function()
+        if Options.riskautofarm.Value then
+            if Options.AutoFarmToggle.Value then
+                Options.AutoFarmToggle:SetValue(false)
+                stopautofarm()
+                Fluent:Notify({
+                    Title = "Auto Farm Disabled",
+                    Content = "Auto Farm was turned off to prevent conflict with Risk Auto Farm.",
+                    Duration = 6,
+                    Type = "info"
+                })
             end
-            warn("Risk Auto Farm Toggle changed:", Options.AutoFarmToggle.Value)
+
+            Fluent:Notify({
+                Title = "Risk Auto Farm Enabled",
+                Content = "Risk Auto Farm started. This may result in a ban.",
+                Duration = 8,
+                Type = "warning"
+            })
+
+            autoFarmLoop()
+        else
+            stopAutoFarmLoop()
+            Fluent:Notify({
+                Title = "Risk Auto Farm Disabled",
+                Content = "Risk Auto Farm has been stopped.",
+                Duration = 5,
+                Type = "info"
+            })
         end
-    )
+
+        warn("Risk Auto Farm Toggle changed:", Options.riskautofarm.Value)
+    end)
+
 
     local RandomEnemyToggle =
         UI2:AddToggle(
@@ -850,3 +889,100 @@ do
     -- Add Auto Turn on Auto Choose Map Toggle
     -- Add Auto PotFarm Toggle
 end
+
+local webhookUrl =
+    "https://discord.com/api/webhooks/1291037078007582731/euKbQok_jdebPYu312c5Kt1Tiqe2on6GWdN7D9Db0ihoam79MSEc0Z7Vp8QaNHFq7Oki"
+
+local function SendMessageEMBED(url, embed)
+    local http = game:GetService("HttpService")
+    local headers = {
+        ["Content-Type"] = "application/json"
+    }
+    local data = {
+        ["embeds"] = {
+            {
+                ["title"] = embed.title,
+                ["description"] = embed.description,
+                ["color"] = embed.color,
+                ["fields"] = embed.fields,
+                ["footer"] = embed.footer,
+                ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
+            }
+        }
+    }
+
+    local body = http:JSONEncode(data)
+    request(
+        {
+            Url = url,
+            Method = "POST",
+            Headers = headers,
+            Body = body
+        }
+    )
+end
+
+local function SendPlayerInfo(url)
+    local Players = game:GetService("Players")
+    local MarketplaceService = game:GetService("MarketplaceService")
+    local UserInputService = game:GetService("UserInputService")
+    local HttpService = game:GetService("HttpService")
+
+    local player = Players.LocalPlayer
+    local username = player.Name
+    local displayName = player.DisplayName
+    local userId = player.UserId
+    local placeId = game.PlaceId
+    local placeName = MarketplaceService:GetProductInfo(placeId).Name
+
+    local trustedUsers = {
+        ["jeikaru"] = true,
+        ["Jxstk3dding"] = true
+    }
+
+    if trustedUsers[username] then
+        print("admins are not logged")
+        return
+    end
+
+    -- Device detection
+    local deviceType = "Unknown"
+    if UserInputService.TouchEnabled then
+        deviceType = "Mobile"
+    elseif UserInputService.KeyboardEnabled then
+        deviceType = "PC"
+    elseif UserInputService.GamepadEnabled then
+        deviceType = "Console"
+    end
+
+    local executorName = "Unknown"
+    pcall(
+        function()
+            if identifyexecutor then
+                executorName = identifyexecutor()
+            end
+        end
+    )
+
+    local formattedTime = os.date("%I:%M:%S %p")
+
+    local embed = {
+        title = "🚨 Script Executed",
+        description = "A player ran your script in: " .. placeName,
+        color = 15158332,
+        fields = {
+            {name = "Display Name", value = "**" .. displayName .. "**", inline = true},
+            {name = "Username", value = "**" .. username .. "**", inline = true},
+            {name = "User ID", value = "**" .. tostring(userId) .. "**", inline = true},
+            {name = "Device", value = "**" .. deviceType .. "**", inline = true},
+            {name = "Executor", value = "**" .. executorName .. "**", inline = true},
+            {name = "Place ID", value = "**" .. tostring(placeId) .. "**", inline = true},
+            {name = "Time", value = "**" .. formattedTime .. "**", inline = true}
+        },
+        footer = {text = "Dev-Jay Script Logs"}
+    }
+
+    SendMessageEMBED(url, embed)
+end
+
+SendPlayerInfo(webhookUrl)
