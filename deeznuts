@@ -352,73 +352,6 @@ function stopautofarm()
     end
 end
 
-function startautofarm()
-    if autoFarmRunning then
-        return
-    end
-    autoFarmRunning = true
-
-    autoFarmThread =
-        coroutine.create(
-        function()
-            while autoFarmRunning and Options.AutoFarmToggle.Value do
-                local player = game.Players.LocalPlayer
-                local character = player.Character or player.CharacterAdded:Wait()
-                local tool = character:FindFirstChildOfClass("Tool")
-
-                if tool and tool:FindFirstChild("Handle") then
-                    local barrel = tool.Handle:FindFirstChild("Barrel")
-                    if barrel then
-                        local reloadTime = tool:GetAttribute("ReloadTime") or 0.1
-                        local damage = tool:GetAttribute("Damage") or 50
-                        local ammo = tool:GetAttribute("Ammo") or {Min = 0, Max = 0}
-
-                        local target = getTargetEnemy()
-
-                        if
-                            target and target:IsA("BasePart") and target.Parent:FindFirstChild("Humanoid") and
-                                target.Parent.Humanoid.Health > 0
-                         then
-                            local headPos = target.Position + Vector3.new(0, target.Size.Y / 2, 0)
-
-                            game.ReplicatedStorage.BulletReplication.ReplicateClient:Fire("MUZZLE", barrel)
-                            game.ReplicatedStorage.BulletReplication.ReplicateClient:Fire(
-                                "HIT",
-                                barrel,
-                                {
-                                    [1] = headPos,
-                                    [3] = false,
-                                    [4] = "Plastic"
-                                }
-                            )
-                            tool.Main:FireServer("MUZZLE", barrel)
-                            tool.Main:FireServer(
-                                "DAMAGE",
-                                {
-                                    [1] = target,
-                                    [2] = headPos,
-                                    [3] = damage
-                                }
-                            )
-                        end
-
-                        -- Reload handling
-                        if ammo.Min <= 0 then
-                            pressRKey()
-                            task.wait(reloadTime)
-                            tool.Main:FireServer("AMMO")
-                        end
-                    end
-                end
-                task.wait(0.1)
-            end
-            autoFarmRunning = false
-        end
-    )
-
-    coroutine.resume(autoFarmThread)
-end
-
 function stopAutoFarmLoop()
     autoFarmLoopRunning = false
     if autoFarmLoopThread then
@@ -427,40 +360,76 @@ function stopAutoFarmLoop()
     end
 end
 
-function autoFarmLoop()
-    if autoFarmLoopRunning then return end
-    autoFarmLoopRunning = true
+function startautofarm()
+    autoFarmRunning = true
+    autoFarmThread = coroutine.create(function()
+        warn("Autofarm started")
+        while autoFarmRunning do
+            local char = lp.Character
+            if not char then warn("No character found") task.wait() continue end
 
-    autoFarmLoopThread = coroutine.create(function()
-        while autoFarmLoopRunning and Options.riskautofarm.Value do
-            task.wait(0.1)
-            local player = game.Players.LocalPlayer
-            local character = player.Character or player.CharacterAdded:Wait()
-            local hrp = character and character:FindFirstChild("HumanoidRootPart")
-            local tool = character:FindFirstChildOfClass("Tool")
-            local barrel = tool and tool.Handle and tool.Handle:FindFirstChild("Barrel")
-            local enemy = getTargetEnemy()
+            local tool = char:FindFirstChildOfClass("Tool")
+            if not tool then warn("No tool found") task.wait() continue end
 
-            if enemy and enemy:IsA("BasePart") and barrel then
-                local main = tool:FindFirstChild("Main")
-                if main then
-                    game.ReplicatedStorage.BulletReplication.ReplicateClient:Fire("MUZZLE", barrel)
-                    game.ReplicatedStorage.BulletReplication.ReplicateClient:Fire(
-                        "HIT",
-                        barrel,
-                        {[1] = enemy.Position, [3] = false, [4] = "Plastic"}
-                    )
-                    main:FireServer("MUZZLE", barrel)
-                    main:FireServer("DAMAGE", {[1] = enemy, [2] = enemy.Position, [3] = 10})
-                    main:FireServer("AMMO")
-                end
+            local handle = tool:FindFirstChild("Handle")
+            if not handle then warn("Tool has no Handle") task.wait() continue end
+
+            local barrel = handle:FindFirstChild("Barrel")
+            if not barrel then warn("Handle has no Barrel") task.wait() continue end
+
+            local target, isBoss = getTargetEnemy()
+            if not target then warn("No enemy target found") task.wait() continue end
+
+            if ammo.Min <= 0 then
+                warn("No ammo, reloading...")
+                pressRKey()
+                task.wait(reloadTime)
+                tool.Main:FireServer("AMMO")
             end
-        end
-        autoFarmLoopRunning = false
-    end)
 
+            shootEnemy(tool, barrel, target, isBoss)
+            task.wait(shootDelay)
+        end
+        warn("Autofarm stopped")
+    end)
+    coroutine.resume(autoFarmThread)
+end
+
+function autoFarmLoop()
+    autoFarmLoopRunning = true
+    autoFarmLoopThread = coroutine.create(function()
+        warn("Risk Autofarm started")
+        while autoFarmLoopRunning do
+            local char = lp.Character
+            if not char then warn("No character found (risk mode)") task.wait() continue end
+
+            local tool = char:FindFirstChildOfClass("Tool")
+            if not tool then warn("No tool found (risk mode)") task.wait() continue end
+
+            local handle = tool:FindFirstChild("Handle")
+            if not handle then warn("Tool has no Handle (risk mode)") task.wait() continue end
+
+            local barrel = handle:FindFirstChild("Barrel")
+            if not barrel then warn("Handle has no Barrel (risk mode)") task.wait() continue end
+
+            local target, isBoss = getTargetEnemy()
+            if not target then warn("No enemy target found (risk mode)") task.wait() continue end
+
+            if ammo.Min <= 0 then
+                warn("No ammo, reloading... (risk mode)")
+                pressRKey()
+                task.wait(reloadTime)
+                tool.Main:FireServer("AMMO")
+            end
+
+            shootEnemy(tool, barrel, target, isBoss)
+            task.wait(shootDelay)
+        end
+        warn("Risk Autofarm stopped")
+    end)
     coroutine.resume(autoFarmLoopThread)
 end
+
 
 -- local functions and stuff ends
 
