@@ -13,8 +13,8 @@ local backpack = player:WaitForChild("Backpack")
 local choosengun = nil
 local autoFarmRunning = false
 local autoFarmThread = nil
-local autoFarmLoopRunning = false
-local autoFarmLoopThread = nil
+local riskAutoFarmRunning = false
+local riskAutoFarmThread
 
 local version = 3
 local Window =
@@ -352,124 +352,62 @@ function stopautofarm()
     end
 end
 
-function stopAutoFarmLoop()
-    autoFarmLoopRunning = false
-    if autoFarmLoopThread then
-        coroutine.close(autoFarmLoopThread)
-        autoFarmLoopThread = nil
-    end
-end
-
 function startautofarm()
+    if autoFarmRunning then
+        return
+    end
     autoFarmRunning = true
+
     autoFarmThread = coroutine.create(function()
-        warn("Autofarm started")
-        while autoFarmRunning do
-            local char = lp.Character
-            if not char then 
-                warn("[Autofarm] Character not found") 
-                task.wait() 
-                continue 
-            end
+        while autoFarmRunning and Options.AutoFarmToggle.Value do
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local tool = character:FindFirstChildOfClass("Tool")
 
-            local tool = char:FindFirstChildOfClass("Tool")
-            if not tool then 
-                warn("[Autofarm] Tool not equipped") 
-                task.wait() 
-                continue 
-            end
+            if tool and tool:FindFirstChild("Handle") then
+                local barrel = tool.Handle:FindFirstChild("Barrel")
+                if barrel then
+                    local reloadTime = tool:GetAttribute("ReloadTime") or 0.1
+                    local damage = tool:GetAttribute("Damage") or 50
+                    local ammo = tool:GetAttribute("Ammo") or {Min = 0, Max = 0}
 
-            local handle = tool:FindFirstChild("Handle")
-            if not handle then 
-                warn("[Autofarm] Tool has no Handle") 
-                task.wait() 
-                continue 
-            end
+                    local target = getTargetEnemy()
 
-            local barrel = handle:FindFirstChild("Barrel")
-            if not barrel then 
-                warn("[Autofarm] Handle has no Barrel") 
-                task.wait() 
-                continue 
-            end
+                    if target and target:IsA("BasePart") and target.Parent:FindFirstChild("Humanoid") and target.Parent.Humanoid.Health > 0 then
+                        local headPos = target.Position + Vector3.new(0, target.Size.Y / 2, 0)
 
-            local target, isBoss = getTargetEnemy()
-            if not target then 
-                warn("[Autofarm] No valid enemy found") 
-                task.wait() 
-                continue 
-            end
+                        game.ReplicatedStorage.BulletReplication.ReplicateClient:Fire("MUZZLE", barrel)
+                        game.ReplicatedStorage.BulletReplication.ReplicateClient:Fire("HIT", barrel, {
+                            [1] = headPos,
+                            [3] = false,
+                            [4] = "Plastic"
+                        })
+                        tool.Main:FireServer("MUZZLE", barrel)
+                        tool.Main:FireServer("DAMAGE", {
+                            [1] = target,
+                            [2] = headPos,
+                            [3] = damage
+                        })
+                    end
 
-            if ammo.Min <= 0 then
-                warn("[Autofarm] Out of ammo, reloading")
-                pressRKey()
-                task.wait(reloadTime)
-                tool.Main:FireServer("AMMO")
+                    -- Reload logic that respects risk autofarm toggle
+                    if ammo.Min <= 0 then
+                        if Options.riskautofarm.Value then
+                            tool.Main:FireServer("AMMO")
+                        else
+                            pressRKey()
+                            task.wait(reloadTime)
+                            tool.Main:FireServer("AMMO")
+                        end
+                    end
+                end
             end
-
-            warn("[Autofarm] Shooting at target:", target.Name)
-            shootEnemy(tool, barrel, target, isBoss)
-            task.wait(shootDelay)
+            task.wait(0.1)
         end
-        warn("Autofarm stopped")
+        autoFarmRunning = false
     end)
+
     coroutine.resume(autoFarmThread)
-end
-
-function autoFarmLoop()
-    autoFarmLoopRunning = true
-    autoFarmLoopThread = coroutine.create(function()
-        warn("Risk Autofarm started")
-        while autoFarmLoopRunning do
-            local char = lp.Character
-            if not char then 
-                warn("[Risk Autofarm] Character not found") 
-                task.wait() 
-                continue 
-            end
-
-            local tool = char:FindFirstChildOfClass("Tool")
-            if not tool then 
-                warn("[Risk Autofarm] Tool not equipped") 
-                task.wait() 
-                continue 
-            end
-
-            local handle = tool:FindFirstChild("Handle")
-            if not handle then 
-                warn("[Risk Autofarm] Tool has no Handle") 
-                task.wait() 
-                continue 
-            end
-
-            local barrel = handle:FindFirstChild("Barrel")
-            if not barrel then 
-                warn("[Risk Autofarm] Handle has no Barrel") 
-                task.wait() 
-                continue 
-            end
-
-            local target, isBoss = getTargetEnemy()
-            if not target then 
-                warn("[Risk Autofarm] No valid enemy found") 
-                task.wait() 
-                continue 
-            end
-
-            if ammo.Min <= 0 then
-                warn("[Risk Autofarm] Out of ammo, reloading")
-                pressRKey()
-                task.wait(reloadTime)
-                tool.Main:FireServer("AMMO")
-            end
-
-            warn("[Risk Autofarm] Shooting at target:", target.Name)
-            shootEnemy(tool, barrel, target, isBoss)
-            task.wait(shootDelay)
-        end
-        warn("Risk Autofarm stopped")
-    end)
-    coroutine.resume(autoFarmLoopThread)
 end
 
 -- local functions and stuff ends
@@ -800,40 +738,30 @@ do
     -- classic
     local UI2 = tabs.classic:AddSection("Main")
 
-    local AutoFarmToggle =
-        UI2:AddToggle(
-        "AutoFarmToggle",
-        {
-            Title = "Auto Farm",
-            Default = false
-        }
-    )
-
-    AutoFarmToggle:OnChanged(
-        function()
-            if Options.AutoFarmToggle.Value then
-                startautofarm()
-            else
-                stopautofarm()
-            end
-            warn("Auto Farm Toggle changed:", Options.AutoFarmToggle.Value)
+    local AutoFarmToggle = UI2:AddToggle("AutoFarmToggle", {
+        Title = "Auto Farm",
+        Default = false
+    })
+    
+    AutoFarmToggle:OnChanged(function()
+        if Options.AutoFarmToggle.Value then
+            startautofarm()
+        else
+            stopautofarm()
         end
-    )
-
-    local RiskAutoFarmToggle =
-        UI2:AddToggle(
-        "riskautofarm",
-        {
-            Title = "Risk Autofarm (has a chance to get banned)",
-            Default = false
-        }
-    )
-
+        warn("Auto Farm Toggle changed:", Options.AutoFarmToggle.Value)
+    end)
+    
+    -- Risk Auto Farm Toggle
+    local RiskAutoFarmToggle = UI2:AddToggle("riskautofarm", {
+        Title = "Risk Autofarm (has a chance to get banned)",
+        Default = false
+    })
+    
     RiskAutoFarmToggle:OnChanged(function()
         if Options.riskautofarm.Value then
             if Options.AutoFarmToggle.Value then
                 Options.AutoFarmToggle:SetValue(false)
-                stopautofarm()
                 Fluent:Notify({
                     Title = "Auto Farm Disabled",
                     Content = "Auto Farm was turned off to prevent conflict with Risk Auto Farm.",
@@ -841,17 +769,17 @@ do
                     Type = "info"
                 })
             end
-
+    
             Fluent:Notify({
                 Title = "Risk Auto Farm Enabled",
                 Content = "Risk Auto Farm started. This may result in a ban.",
                 Duration = 8,
                 Type = "warning"
             })
-
-            autoFarmLoop()
+    
+            startautofarm()
         else
-            stopAutoFarmLoop()
+            stopautofarm()
             Fluent:Notify({
                 Title = "Risk Auto Farm Disabled",
                 Content = "Risk Auto Farm has been stopped.",
@@ -859,10 +787,9 @@ do
                 Type = "info"
             })
         end
-
+    
         warn("Risk Auto Farm Toggle changed:", Options.riskautofarm.Value)
     end)
-
 
     local RandomEnemyToggle =
         UI2:AddToggle(
